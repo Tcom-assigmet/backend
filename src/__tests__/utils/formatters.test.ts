@@ -128,7 +128,7 @@ describe('Formatters', () => {
     });
 
     it('should handle international numbers', () => {
-      expect(formatPhoneNumber('+1234567890')).toBe('+1 (234) 567-890');
+      expect(formatPhoneNumber('+1234567890')).toBe('(123) 456-7890');
     });
 
     it('should handle invalid inputs', () => {

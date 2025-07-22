@@ -1,5 +1,5 @@
-import Header from '@/src/components/layout/Header';
-import Sidebar from '@/src/components/layout/Sidebar';
+import Header from '@/components/layout/Header';
+import Sidebar from '@/components/layout/Sidebar';
 import { FC, ReactNode } from 'react';
 interface MainLayoutProps {
   children: ReactNode;

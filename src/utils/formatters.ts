@@ -1,4 +1,4 @@
-import { format, isValid, parseISO } from 'date-fns';
+import { format, isValid, parseISO, differenceInYears } from 'date-fns';
 
 import { DATE_FORMATS } from '@/constants';
 
@@ -54,6 +54,55 @@ export const formatDate = (
 };
 
 /**
+ * Gets current date formatted
+ */
+export const getCurrentDate = (): string => {
+  return formatDate(new Date(), DATE_FORMATS.LONG);
+};
+
+/**
+ * Formats date for API submission
+ */
+export const formatDateForApi = (date: Date): string => {
+  return formatDate(date, DATE_FORMATS.API);
+};
+
+/**
+ * Calculates age from birth date and effective date
+ */
+export const calculateAge = (birthDate?: string | Date, effectiveDate?: string | Date): string | number => {
+  if (!birthDate || !effectiveDate) return '-';
+  
+  try {
+    const birth = typeof birthDate === 'string' ? parseISO(birthDate) : birthDate;
+    const effective = typeof effectiveDate === 'string' ? parseISO(effectiveDate) : effectiveDate;
+    
+    if (!isValid(birth) || !isValid(effective)) return '-';
+    
+    return differenceInYears(effective, birth);
+  } catch {
+    return '-';
+  }
+};
+
+/**
+ * Formats factor values based on type
+ */
+export const formatFactorValue = (key: string, value: string | number | undefined): string => {
+  if (!value && value !== 0) return '-';
+  
+  if (key.toLowerCase().includes('sal') || key.toLowerCase().includes('salary')) {
+    return formatCurrency(value);
+  }
+  
+  if (key.toLowerCase().includes('rate') || key.toLowerCase().includes('percent')) {
+    return formatPercent(Number(value) / 100);
+  }
+  
+  return String(value);
+};
+
+/**
  * Formats a decimal as a percentage
  */
 export const formatPercent = (
@@ -100,8 +149,11 @@ export const formatPhoneNumber = (
   if (digits.length === 10) {
     // (123) 456-7890
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  } else if (digits.length === 11) {
+  } else if (digits.length === 11 && digits.startsWith('1')) {
     // +1 (234) 567-8901
+    return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+  } else if (digits.length === 11) {
+    // International format without +1
     return `+${digits.slice(0, 1)} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
   } else if (digits.length > 11) {
     // International format

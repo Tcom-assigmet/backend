@@ -1,26 +1,42 @@
 "use client"
 import React, { useState } from 'react';
-import { useStore } from '@/src/store/useStore';
-import BenefitCalculatorResult from '@/src/components/forms/benefitCalculatorResult/BenefitCalculatorResultForm';
-import BenefitCalculatorForm from '@/src/components/forms/benefitCalculatorStartForm/BenefitCalculatorStartForm';
-import EnterCalculationDetailsForm from '@/src/components/forms/enterCalculationDetailsForm/EnterCalculationDetailsForm';
+import dynamic from 'next/dynamic';
+import { useStore } from '@/store/useStore';
+
+// Dynamically import components to prevent SSR issues
+const BenefitCalculatorResult = dynamic(
+  () => import('@/components/forms/benefitCalculatorResult/BenefitCalculatorResultForm'),
+  { ssr: false }
+);
+
+const BenefitCalculatorForm = dynamic(
+  () => import('@/components/forms/benefitCalculatorStartForm/BenefitCalculatorStartForm'),
+  { ssr: false }
+);
+
+const EnterCalculationDetailsForm = dynamic(
+  () => import('@/components/forms/enterCalculationDetailsForm/EnterCalculationDetailsForm'),
+  { ssr: false }
+);
 
 const BenefitCalculate: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<'calculator' | 'details' | 'results'>('calculator');
   
   const {
-    setBenefitCalRequiredFilelds,
-    setBenefitCalculatorProcessInstanceId,
-    setBenefitCalculatorTaskInitiated,
-    setCountBenefitCalculations,clearBenefitCalculatorFormValues,resetBenefitCalculatorFormData
+    setRequiredFields,
+    setProcessInstanceId,
+    setTaskInitiated,
+    resetCalculationCount,
+    clearFormValues,
+    resetFormData
   } = useStore();
 
   const cancel = () => {
     setCurrentStep('calculator');
-    setBenefitCalRequiredFilelds([]);
-    setBenefitCalculatorProcessInstanceId(null);
-    setBenefitCalculatorTaskInitiated(false);
-    setCountBenefitCalculations(0);
+    setRequiredFields([]);
+    setProcessInstanceId(null);
+    setTaskInitiated(false);
+    resetCalculationCount();
   };
 
   const handleNext = () => {
@@ -32,65 +48,84 @@ const BenefitCalculate: React.FC = () => {
   };
 
   const handleBack = () => {
-    if (currentStep === 'details') {
-      setCurrentStep('calculator');
-    } else if (currentStep === 'results') {
+    if (currentStep === 'results') {
       setCurrentStep('details');
+    } else if (currentStep === 'details') {
+      setCurrentStep('calculator');
     }
   };
 
-  const handleStartNew = () => {
+  const resetAll = () => {
     setCurrentStep('calculator');
-    setBenefitCalRequiredFilelds([]);
-    setBenefitCalculatorProcessInstanceId(null);
-    setBenefitCalculatorTaskInitiated(false);
-    setCountBenefitCalculations(0);
-    clearBenefitCalculatorFormValues();
-    resetBenefitCalculatorFormData();
+    setRequiredFields([]);
+    setProcessInstanceId(null);
+    setTaskInitiated(false);
+    resetCalculationCount();
+    clearFormValues();
+    resetFormData();
   };
 
-  const renderHeader = (title: string, showStartNew: boolean = false) => (
-    <div className="mb-6 flex justify-between items-center">
-      <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-      <div className="flex gap-2">
-        {showStartNew && (
-          <button
-            onClick={handleStartNew}
-            className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-md transition-colors"
-          >
-            Start New Process
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
   return (
-    <div className="min-h-max p-6 bg-[#EAEFEF]">
-      {currentStep === 'calculator' && (
-        <div className="w-full">
-          {renderHeader('Standard Calculator')}
-          <BenefitCalculatorForm onClose={cancel} onNext={handleNext} />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Benefit Calculator</h1>
+          <p className="mt-2 text-gray-600">Calculate member benefits step by step</p>
         </div>
-      )}
 
-      {currentStep === 'details' && (
-        <div className="w-full">
-          {renderHeader('Calculation Details')}
-          <EnterCalculationDetailsForm 
-            onCancel={cancel}
-            onComplete={handleNext}
-            onBack={handleBack}
-          />
+        {/* Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className={`flex items-center ${currentStep === 'calculator' ? 'text-blue-600' : currentStep !== 'calculator' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'calculator' ? 'bg-blue-600 text-white' : currentStep !== 'calculator' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
+                1
+              </div>
+              <span className="ml-2 font-medium">Member Info</span>
+            </div>
+            
+            <div className={`flex items-center ${currentStep === 'details' ? 'text-blue-600' : currentStep === 'results' ? 'text-green-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'details' ? 'bg-blue-600 text-white' : currentStep === 'results' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
+                2
+              </div>
+              <span className="ml-2 font-medium">Calculation Details</span>
+            </div>
+            
+            <div className={`flex items-center ${currentStep === 'results' ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep === 'results' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+                3
+              </div>
+              <span className="ml-2 font-medium">Results</span>
+            </div>
+          </div>
         </div>
-      )}
 
-      {currentStep === 'results' && (
-        <div className="w-full">
-          {renderHeader('Calculation Results', true)}
-          <BenefitCalculatorResult />
+        {/* Content */}
+        <div className="bg-white rounded-lg shadow-sm border">
+          {currentStep === 'calculator' && (
+            <BenefitCalculatorForm 
+              onNext={handleNext}
+              onCancel={cancel}
+            />
+          )}
+          
+          {currentStep === 'details' && (
+            <EnterCalculationDetailsForm 
+              onNext={handleNext}
+              onBack={handleBack}
+              onCancel={cancel}
+            />
+          )}
+          
+          {currentStep === 'results' && (
+            <BenefitCalculatorResult 
+              onBack={handleBack}
+              onReset={resetAll}
+            />
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

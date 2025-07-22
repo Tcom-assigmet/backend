@@ -1,8 +1,8 @@
 import type React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TableCell } from "../ui/table-cell"
 import { THEME, STYLES } from "../theme"
-import { MemberData } from "@/src/types/benefitcalculator"
+import { MemberData } from "@/types/benefitcalculator"
 
 interface BenefitDetailsProps {
   memberData: MemberData

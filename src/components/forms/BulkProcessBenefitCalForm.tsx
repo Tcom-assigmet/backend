@@ -1,8 +1,8 @@
 "use client"
 import React, { useState, useEffect, useRef, JSX } from 'react';
-import { Button } from '@/src/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Upload, FileText, CheckCircle, XCircle, Clock, Download } from 'lucide-react';
-import { useStore } from '@/src/store/useStore';
+import { useStore } from '@/store/useStore';
 
 interface BulkProcessBenefitCalFormProps {
   onClose?: () => void;

@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import { FormErrors, FormValue, RequiredField } from "../types/benefitcalculator";
-import { VALIDATION_MESSAGES } from "../configs/benefitCalculatorConfigs";
+import { FormErrors, FormValue, RequiredField } from "@/types/benefitcalculator";
+import { VALIDATION_MESSAGES } from "@/config/benefitCalculatorConfigs";
 
 
 export const useFormValidation = (fields: RequiredField[]) => {

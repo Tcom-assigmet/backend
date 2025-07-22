@@ -78,7 +78,7 @@ class HttpClient {
         throw error;
       }
       
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      if (error instanceof TypeError) {
         throw new NetworkError('Network connection failed', error);
       }
       
