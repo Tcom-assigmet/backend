@@ -3,13 +3,13 @@
 import type React from "react";
 import { useRef } from "react";
 import { THEME } from "./theme";
-import { useBenefitData } from "@/src/hooks/use-benefit-data";
+import { useBenefitData } from "@/hooks/use-benefit-data";
 import { MemberInformation } from "./sections/member-information";
 import { BenefitDetails } from "./sections/benefit-details";
 import { CalculationFactors } from "./sections/calculation-factors";
 import { BenefitCalculationSummary } from "./sections/benefit-calculation-summary";
 import Image from "next/image";
-import { getCurrentDate } from "@/src/utils/formatters";
+import { getCurrentDate } from "@/utils/formatters";
 import DownloadPDF from "./sections/DownloadPDF";
 
 const BenefitCalculatorResult: React.FC = () => {

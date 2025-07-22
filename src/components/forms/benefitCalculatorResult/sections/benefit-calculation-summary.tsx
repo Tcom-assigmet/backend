@@ -1,10 +1,10 @@
 import type React from "react"
 import { THEME, STYLES } from "../theme"
 import { Separator } from "@radix-ui/react-select"
-import { formatCurrency } from "@/src/utils/formatters"
+import { formatCurrency } from "@/utils/formatters"
 import { CurrencyFieldRow } from "../ui/currency-field-row"
-import { MemberData, SubProcessData } from "@/src/types/benefitcalculator"
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { MemberData, SubProcessData } from "@/types/benefitcalculator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface BenefitCalculationSummaryProps {
   memberData: MemberData

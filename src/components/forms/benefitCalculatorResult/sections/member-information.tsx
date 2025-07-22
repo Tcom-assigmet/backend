@@ -1,9 +1,9 @@
 import type React from "react"
 import { TableCell } from "../ui/table-cell"
 import { THEME, STYLES } from "../theme"
-import { MemberData } from "@/src/types/benefitcalculator"
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { calculateAge, formatDate } from "@/src/utils/formatters"
+import { MemberData } from "@/types/benefitcalculator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { calculateAge, formatDate } from "@/utils/formatters"
 
 
 interface MemberInformationProps {

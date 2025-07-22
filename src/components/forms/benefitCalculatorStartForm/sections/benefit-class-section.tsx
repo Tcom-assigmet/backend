@@ -5,13 +5,13 @@ import type React from "react"
 
 import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
-import { FormData, ValidationErrors } from "@/src/types/benefitcalculator"
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/src/components/ui/popover"
-import { Button } from "@/src/components/ui/button"
-import { Calendar } from "@/src/components/ui/calendar"
-import { cn } from "@/src/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
+import { FormData, ValidationErrors } from "@/types/benefitcalculator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 
 interface BenefitClassSectionProps {

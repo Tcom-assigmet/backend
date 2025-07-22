@@ -44,6 +44,59 @@ export const validateAge = (birthDate: Date | null): string | null => {
 };
 
 /**
+ * Validates a date field
+ */
+export const validateDate = (
+  date: Date | null | undefined, 
+  fieldName: string, 
+  minDate?: Date, 
+  maxDate?: Date
+): string | null => {
+  if (!date) {
+    return ERROR_MESSAGES.REQUIRED_FIELD;
+  }
+
+  if (!isValid(date)) {
+    return ERROR_MESSAGES.INVALID_DATE;
+  }
+
+  if (minDate && isBefore(date, minDate)) {
+    return `${fieldName} cannot be before ${minDate.toLocaleDateString()}`;
+  }
+
+  if (maxDate && isBefore(maxDate, date)) {
+    return `${fieldName} cannot be after ${maxDate.toLocaleDateString()}`;
+  }
+
+  return null;
+};
+
+/**
+ * Validates date logic for form data
+ */
+export const validateDateLogic = (formData: BenefitCalculatorFormData): string | null => {
+  const { dateOfBirth, dateJoinedFund, effectiveDate, calculationDate } = formData;
+
+  if (!dateOfBirth || !dateJoinedFund || !effectiveDate || !calculationDate) {
+    return null; // Skip validation if dates are missing
+  }
+
+  if (isBefore(dateJoinedFund, dateOfBirth)) {
+    return 'Date Joined Fund must be after Date of Birth';
+  }
+
+  if (isBefore(effectiveDate, dateJoinedFund)) {
+    return 'Effective Date cannot be before Date Joined Fund';
+  }
+
+  if (isBefore(calculationDate, effectiveDate)) {
+    return 'Calculation Date cannot be before Effective Date';
+  }
+
+  return null;
+};
+
+/**
  * Validates that end date is after start date
  */
 export const validateDateRange = (
@@ -196,26 +249,9 @@ export const validateFormData = (formData: BenefitCalculatorFormData): Validatio
   }
 
   // Validate date logic
-  if (formData.dateJoinedFund && formData.effectiveDate) {
-    const dateRangeError = validateDateRange(
-      formData.dateJoinedFund, 
-      formData.effectiveDate,
-      'Effective date'
-    );
-    if (dateRangeError) {
-      errors.dateLogic = dateRangeError;
-    }
-  }
-
-  if (formData.effectiveDate && formData.calculationDate) {
-    const calcDateError = validateDateRange(
-      formData.effectiveDate,
-      formData.calculationDate,
-      'Calculation date'
-    );
-    if (calcDateError) {
-      errors.dateLogic = calcDateError;
-    }
+  const dateLogicError = validateDateLogic(formData);
+  if (dateLogicError) {
+    errors.dateLogic = dateLogicError;
   }
 
   // Validate benefit class

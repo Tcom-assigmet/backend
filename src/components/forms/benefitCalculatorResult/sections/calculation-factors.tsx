@@ -1,9 +1,9 @@
 import type React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TableCell } from "../ui/table-cell"
 import { THEME, STYLES } from "../theme"
-import { CalculationFactor } from "@/src/types/benefitcalculator"
-import { formatFactorValue } from "@/src/utils/formatters"
+import { CalculationFactor } from "@/types/benefitcalculator"
+import { formatFactorValue } from "@/utils/formatters"
 
 
 
