@@ -1,4 +1,8 @@
 import { useEffect, useCallback, useRef } from 'react';
+<<<<<<< HEAD
+=======
+import { useRouter } from 'next/navigation';
+>>>>>>> 00660db5e08b8bac68cb9f948f37481370f9917e
 import logger from '@/src/utils/logger';
 
 interface UseLoggerOptions {
