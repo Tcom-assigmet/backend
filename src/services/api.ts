@@ -193,7 +193,7 @@ export const bulkProcessApi = {
     const response = await fetch(
       `${API_CONFIG.baseURL}${API_ENDPOINTS.BULK_PROCESS}/${batchId}/download`,
       {
-        headers: this.httpClient.defaultHeaders,
+        headers: API_CONFIG.headers,
       },
     );
 
