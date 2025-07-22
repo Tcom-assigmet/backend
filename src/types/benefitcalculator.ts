@@ -1,10 +1,11 @@
 import type { ProcessStatus } from '@/constants';
-
-// Base types
-export type DataType = 'Double' | 'String' | 'Boolean' | 'Date';
-export type FormValue = string | number | boolean | Date | null;
-export type FormErrors = Record<string, string>;
-export type ProcessedFormData = Record<string, FormValue>;
+import type { 
+  DataType, 
+  FormValue, 
+  FormErrors, 
+  ProcessedFormData,
+  BaseApiResponse
+} from './common';
 
 // Benefit Calculator Domain Types
 export interface BenefitClass {
@@ -157,12 +158,7 @@ export interface StoreState {
 }
 
 // API Response Types
-export interface ApiResponse<T = unknown> {
-  readonly success: boolean;
-  readonly data?: T;
-  readonly error?: string;
-  readonly message?: string;
-}
+export interface ApiResponse<T = unknown> extends BaseApiResponse<T> {}
 
 export interface BenefitCalculatorApiResponse extends ApiResponse<BenefitCalFinalResult> {}
 
