@@ -432,10 +432,10 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
   }, [updateValidationErrors])
 
   return (
-    <div className="bg-white rounded-md shadow-sm">
-      <div className="border-b border-gray-200 px-6 py-4">
-        <h1 className="text-xl font-medium text-gray-700">Equip Benefit Calculator</h1>
-      </div>
+          <div className="bg-card rounded-md shadow-sm">
+              <div className="border-b border-border px-6 py-4">
+          <h1 className="text-xl font-medium text-foreground">Equip Benefit Calculator</h1>
+        </div>
 
       <form
         onSubmit={(e) => {
@@ -485,7 +485,7 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
           benefitClasses={BENEFIT_CLASSES}
         />
 
-        <div className="border-t border-gray-200 px-6 py-4 flex justify-between">
+        <div className="border-t border-border px-6 py-4 flex justify-between">
           <div></div>
           <div className="flex gap-2">
             <Button

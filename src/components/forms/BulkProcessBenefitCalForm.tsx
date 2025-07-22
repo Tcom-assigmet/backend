@@ -204,7 +204,7 @@ const BulkProcessBenefitCalForm: React.FC<BulkProcessBenefitCalFormProps> = ({ o
       case 'PROCESSING':
         return <Clock className="w-5 h-5 text-blue-500 animate-spin" />;
       default:
-        return <Clock className="w-5 h-5 text-gray-500" />;
+        return <Clock className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
@@ -330,11 +330,11 @@ const BulkProcessBenefitCalForm: React.FC<BulkProcessBenefitCalFormProps> = ({ o
     batchStatus.status === 'FAILED';
 
   return (
-    <div className="bg-white rounded-md shadow-sm h-screen flex flex-col">
+    <div className="bg-card rounded-md shadow-sm h-screen flex flex-col">
       {/* Header */}
-      <div className="border-b border-gray-200 px-4 sm:px-6 py-4 flex-shrink-0">
+      <div className="border-b border-border px-4 sm:px-6 py-4 flex-shrink-0">
         <div className="flex justify-between items-center">
-          <h1 className="text-lg sm:text-xl font-medium text-gray-700">Bulk Data Upload Calculations</h1>
+          <h1 className="text-lg sm:text-xl font-medium text-foreground">Bulk Data Upload Calculations</h1>
         </div>
       </div>
 
@@ -350,10 +350,10 @@ const BulkProcessBenefitCalForm: React.FC<BulkProcessBenefitCalFormProps> = ({ o
             {/* File Upload Section */}
             {shouldShowUploadSection && (
               <div>
-                <h2 className="text-base sm:text-lg font-medium text-gray-700 mb-4">Upload File</h2>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 text-center">
-                  <Upload className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-sm sm:text-base text-gray-600 mb-4">
+                <h2 className="text-base sm:text-lg font-medium text-foreground mb-4">Upload File</h2>
+                <div className="border-2 border-dashed border-border rounded-lg p-4 sm:p-8 text-center">
+                  <Upload className="w-8 h-8 sm:w-12 sm:h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-sm sm:text-base text-muted-foreground mb-4">
                     Drag and drop your CSV or Excel file here, or click to browse
                   </p>
                   <input
