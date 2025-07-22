@@ -1,4 +1,5 @@
 import { ApiError, BenefitCalculationResult } from "../types/api";
+import { AlertManager, getApiErrorMessage, getNetworkErrorMessage } from "./alertUtils";
 
 export const isApiError = (response: unknown): response is ApiError => {
   return typeof response === 'object' && 
@@ -15,9 +16,11 @@ export const isBenefitCalculationResult = (response: unknown): response is Benef
 // Base service class for common functionality
 export abstract class BaseApiService {
   protected readonly baseUrl: string;
+  protected showAlerts: boolean;
 
-  constructor(endpoint: string) {
+  constructor(endpoint: string, showAlerts: boolean = true) {
     this.baseUrl = endpoint;
+    this.showAlerts = showAlerts;
   }
 
   protected async makeRequest<T>(
@@ -36,28 +39,46 @@ export abstract class BaseApiService {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(this.getErrorMessage(response.status, responseData));
+        const errorMessage = this.getErrorMessage(response.status, responseData);
+        
+        // Show alert if enabled
+        if (this.showAlerts) {
+          AlertManager.showError(errorMessage, 'API Request Failed');
+        }
+        
+        throw new Error(errorMessage);
       }
 
       return responseData;
     } catch (error) {
       if (error instanceof Error) {
+        // If this is already our custom error, don't show alert again
+        if (error.message.includes('API Request Failed')) {
+          throw error;
+        }
+        
+        // Show alert for other errors if enabled
+        if (this.showAlerts) {
+          AlertManager.showError(error.message, 'Request Error');
+        }
+        
         throw error;
       }
-      throw new Error('Network error. Please check your connection.');
+      
+      const networkError = getNetworkErrorMessage();
+      
+      // Show alert for network errors if enabled
+      if (this.showAlerts) {
+        AlertManager.showError(networkError, 'Network Error');
+      }
+      
+      throw new Error(networkError);
     }
   }
 
   private getErrorMessage(status: number, responseData: unknown): string {
-    const defaultMessages: Record<number, string> = {
-      400: 'Invalid request data',
-      401: 'Unauthorized access',
-      403: 'Access forbidden',
-      404: 'Service not found',
-      500: 'Internal server error. Please try again later.',
-    };
-
-    const message =
+    // Extract message from response data if available
+    const responseMessage =
       typeof responseData === 'object' &&
       responseData !== null &&
       'message' in responseData &&
@@ -65,8 +86,7 @@ export abstract class BaseApiService {
         ? (responseData as { message: string }).message
         : undefined;
 
-    return message ||
-           defaultMessages[status] ||
-           `Unexpected error: ${status}`;
+    // Use response message if available, otherwise use standard API error message
+    return responseMessage || getApiErrorMessage(status);
   }
 }

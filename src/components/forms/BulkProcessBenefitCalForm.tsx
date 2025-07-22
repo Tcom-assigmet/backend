@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, JSX } from 'react';
 import { Button } from '@/src/components/ui/button';
 import { Upload, FileText, CheckCircle, XCircle, Clock, Download } from 'lucide-react';
 import { useStore } from '@/src/store/useStore';
+import { AlertManager, getNetworkErrorMessage, getApiErrorMessage } from '@/src/utils/alertUtils';
 
 interface BulkProcessBenefitCalFormProps {
   onClose?: () => void;
@@ -135,11 +136,15 @@ const BulkProcessBenefitCalForm: React.FC<BulkProcessBenefitCalFormProps> = ({ o
         startPolling(newBatchId);
       } else {
         const errorData: ErrorResponse = await response.json();
-        setUploadError(errorData.message || 'Upload failed');
+        const errorMessage = errorData.message || getApiErrorMessage(response.status, 'Upload failed');
+        setUploadError(errorMessage);
+        AlertManager.showError(errorMessage, 'Upload Failed');
       }
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError('Network error occurred during upload');
+      const networkError = getNetworkErrorMessage();
+      setUploadError(networkError);
+      AlertManager.showError(networkError, 'Upload Error');
     } finally {
       setIsUploading(false);
     }
@@ -166,9 +171,13 @@ const BulkProcessBenefitCalForm: React.FC<BulkProcessBenefitCalFormProps> = ({ o
             fetchResults(batchIdToCheck);
           }
         }
+      } else {
+        const errorMessage = getApiErrorMessage(response.status, 'Failed to check batch status');
+        AlertManager.showError(errorMessage, 'Status Check Failed');
       }
     } catch (error) {
       console.error('Error checking batch status:', error);
+      AlertManager.showError(getNetworkErrorMessage(), 'Status Check Error');
     }
   };
 
@@ -181,9 +190,13 @@ const BulkProcessBenefitCalForm: React.FC<BulkProcessBenefitCalFormProps> = ({ o
       if (response.ok) {
         const resultsData: ProcessingResult[] = await response.json();
         setResults(resultsData);
+      } else {
+        const errorMessage = getApiErrorMessage(response.status, 'Failed to fetch results');
+        AlertManager.showError(errorMessage, 'Results Fetch Failed');
       }
     } catch (error) {
       console.error('Error fetching results:', error);
+      AlertManager.showError(getNetworkErrorMessage(), 'Results Fetch Error');
     }
   };
 

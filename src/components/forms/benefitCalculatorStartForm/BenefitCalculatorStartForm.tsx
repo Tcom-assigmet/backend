@@ -334,7 +334,9 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
         onClose()
       }
     } catch (error) {
+      // Error handling is now done automatically by the BaseApiService
       console.error("Failed to start process:", error)
+      // Only set validation error for display purposes in the form
       setValidationErrors((prev) => ({
         ...prev,
         submit: error instanceof Error ? error.message : "Failed to start process. Please try again.",

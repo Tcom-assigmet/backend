@@ -148,8 +148,10 @@ const EnterCalculationDetailsForm: React.FC<EnterCalculationDetailsFormProps> = 
       // Close form
       onComplete?.();
     } catch (error) {
+      // Error handling is now done automatically by the BaseApiService
       console.error('Error submitting form:', error);
-      setSubmitError(VALIDATION_MESSAGES.NETWORK_ERROR);
+      // Set local error for form display
+      setSubmitError(error instanceof Error ? error.message : VALIDATION_MESSAGES.NETWORK_ERROR);
     } finally {
       setIsSubmitting(false);
     }
