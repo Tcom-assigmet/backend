@@ -1,7 +1,15 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import { Calculator, BarChart3,  ArrowRight, CheckCircle } from 'lucide-react';
+import { useLogger } from '@/src/hooks/useLogger';
 
 export default function Home() {
+  const { trackAction, trackBusinessEvent } = useLogger({
+    componentName: 'HomePage',
+    trackPageView: true,
+    trackComponentMount: true
+  });
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -48,6 +56,13 @@ export default function Home() {
                   <a 
                     href="/benefitCalculate" 
                     className="inline-flex items-center justify-center w-full px-4 py-2 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary/90 transition-colors"
+                    onClick={() => {
+                      trackAction('benefit_calculator_clicked', {
+                        cardType: 'individual_calculator',
+                        destination: '/benefitCalculate'
+                      });
+                      trackBusinessEvent('navigation_to_benefit_calculator');
+                    }}
                   >
                     Start Calculation
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -84,6 +99,13 @@ export default function Home() {
                   <a 
                     href="/bulkCalculate" 
                     className="inline-flex items-center justify-center w-full px-4 py-2 bg-secondary text-secondary-foreground font-medium rounded-md hover:bg-secondary/90 transition-colors"
+                    onClick={() => {
+                      trackAction('bulk_calculator_clicked', {
+                        cardType: 'bulk_calculator',
+                        destination: '/bulkCalculate'
+                      });
+                      trackBusinessEvent('navigation_to_bulk_calculator');
+                    }}
                   >
                     Start Bulk Processing
                     <ArrowRight className="ml-2 h-4 w-4" />
