@@ -16,61 +16,68 @@ interface AlertProviderProps {
 
 export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
   const [currentAlert, setCurrentAlert] = useState<ErrorAlert | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [showProgressBar, setShowProgressBar] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const progressTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const AUTO_CLOSE_DURATION = 5000; // 5 seconds
 
   useEffect(() => {
     // Set up the AlertManager callback
     AlertManager.setAlertCallback((alert: ErrorAlert) => {
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-      
-      setCurrentAlert(alert);
-      
-      // Auto-hide info alerts after 5 seconds
-      if (alert.type === 'info') {
-        timeoutRef.current = setTimeout(() => {
-          setCurrentAlert(null);
-          timeoutRef.current = null;
-        }, 5000);
-      }
+      showAlert(alert);
     });
 
     // Cleanup function
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      clearAllTimeouts();
       AlertManager.setAlertCallback(() => {});
     };
   }, []);
 
-  const showAlert = (alert: ErrorAlert) => {
-    setCurrentAlert(alert);
-  };
-
-  const hideAlert = () => {
-    // Clear any existing timeout
+  const clearAllTimeouts = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    setCurrentAlert(null);
+    if (progressTimeoutRef.current) {
+      clearTimeout(progressTimeoutRef.current);
+      progressTimeoutRef.current = null;
+    }
   };
 
-  const getAlertVariant = (type: string) => {
-    switch (type) {
-      case 'error':
-        return 'destructive';
-      case 'warning':
-        return 'default';
-      case 'info':
-        return 'default';
-      default:
-        return 'default';
-    }
+  const showAlert = (alert: ErrorAlert) => {
+    // Clear any existing timeouts
+    clearAllTimeouts();
+    
+    setCurrentAlert(alert);
+    setIsVisible(true);
+    
+    // Start progress bar animation after a brief delay
+    progressTimeoutRef.current = setTimeout(() => {
+      setShowProgressBar(true);
+    }, 100);
+    
+    // Auto-hide after duration
+    timeoutRef.current = setTimeout(() => {
+      hideAlert();
+    }, AUTO_CLOSE_DURATION);
+  };
+
+  const hideAlert = () => {
+    clearAllTimeouts();
+    setIsVisible(false);
+    setShowProgressBar(false);
+    
+    // Remove alert after fade out animation
+    setTimeout(() => {
+      setCurrentAlert(null);
+    }, 300);
+  };
+
+  const handleManualClose = () => {
+    hideAlert();
   };
 
   return (
@@ -79,10 +86,12 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
       
       {/* Global Alert Display */}
       {currentAlert && (
-        <div className="fixed top-4 right-4 z-50 w-96 max-w-sm">
+        <div className={`fixed top-4 right-4 z-50 w-96 max-w-sm transition-all duration-300 ease-in-out ${
+          isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+        }`}>
           <div 
             className={`
-              relative w-full rounded-lg border shadow-lg p-4 text-sm
+              relative w-full rounded-lg border shadow-lg p-4 text-sm overflow-hidden
               ${currentAlert.type === 'error' 
                 ? 'bg-red-50 border-red-200 text-red-800' 
                 : currentAlert.type === 'warning'
@@ -104,7 +113,7 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
                 </div>
               </div>
               <button
-                onClick={hideAlert}
+                onClick={handleManualClose}
                 className={`
                   flex-shrink-0 p-1 rounded hover:bg-black/10 transition-colors
                   ${currentAlert.type === 'error' 
@@ -119,6 +128,28 @@ export const AlertProvider: React.FC<AlertProviderProps> = ({ children }) => {
               >
                 <X size={16} />
               </button>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/10">
+              <div 
+                className={`
+                  h-full transition-all ease-linear
+                  ${currentAlert.type === 'error' 
+                    ? 'bg-red-400' 
+                    : currentAlert.type === 'warning'
+                    ? 'bg-yellow-400'
+                    : 'bg-blue-400'
+                  }
+                  ${showProgressBar 
+                    ? `w-0 duration-[${AUTO_CLOSE_DURATION}ms]` 
+                    : 'w-full duration-0'
+                  }
+                `}
+                style={{
+                  transitionDuration: showProgressBar ? `${AUTO_CLOSE_DURATION}ms` : '0ms'
+                }}
+              />
             </div>
           </div>
         </div>

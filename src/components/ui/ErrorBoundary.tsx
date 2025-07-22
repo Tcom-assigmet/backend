@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </h1>
               
               <p className="text-gray-600 mb-8 leading-relaxed">
-                We're sorry, but something unexpected happened. Please try again or contact support if the problem persists.
+                We&apos;re sorry, but something unexpected happened. Please try again or contact support if the problem persists.
               </p>
               
               <button
@@ -62,9 +62,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="mt-6 text-left">
-                  <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                    Error Details (Development Only)
-                  </summary>
+                
                   <pre className="mt-2 text-xs bg-gray-100 p-3 rounded overflow-auto max-h-32">
                     {this.state.error.stack}
                   </pre>

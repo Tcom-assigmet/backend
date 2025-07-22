@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from "react"
 
 import { useStore } from "@/src/store/useStore"
 import { validateDate, validateDateLogic, validateMemberId, validateName } from "@/src/utils/validations"
-import { calculateAge, formatDateForApi } from "@/src/utils/uilFunctions"
 import { FormData, ValidationErrors } from "@/src/types/benefitcalculator"
 import { BenefitCalculatorStartService } from "./services/benefit-calculator-service"
 import { BENEFIT_CLASSES, PAYMENT_TYPES, PLAN_BENEFIT_MAPPING, PLAN_NUMBERS } from "../../../configs/benefitCalculatorConfigs"
@@ -12,6 +11,7 @@ import { Alert, AlertDescription } from "../../ui/alert"
 import PersonalDetailsSection from "./sections/personal-details-section"
 import BenefitClassSection from "./sections/benefit-class-section"
 import { Button } from "../../ui/button"
+import { calculateAgeforInput, formatDateForApi } from "@/src/utils/formatters"
 
 
 interface BenefitCalculatorFormProps {
@@ -174,7 +174,7 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
       const benefitClassRule = selectedPaymentType?.benefitClasses.find((bc) => bc.id === formData.benefitClass)
 
       if (benefitClassRule) {
-        const age = calculateAge(formData.dateOfBirth, formData.effectiveDate)
+        const age = calculateAgeforInput(formData.dateOfBirth, formData.effectiveDate)
 
         if (
           (benefitClassRule.minAge >= 0 && age < benefitClassRule.minAge) ||
@@ -228,7 +228,7 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
       const benefitClassRule = selectedPaymentType?.benefitClasses.find((bc) => bc.id === formData.benefitClass)
 
       if (benefitClassRule) {
-        const age = calculateAge(formData.dateOfBirth, formData.effectiveDate)
+        const age = calculateAgeforInput(formData.dateOfBirth, formData.effectiveDate)
 
         if (
           (benefitClassRule.minAge >= 0 && age < benefitClassRule.minAge) ||
@@ -402,7 +402,7 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
 
   useEffect(() => {
     if (formData.dateOfBirth && formData.effectiveDate) {
-      setMemberAge(calculateAge(formData.dateOfBirth, formData.effectiveDate))
+      setMemberAge(calculateAgeforInput(formData.dateOfBirth, formData.effectiveDate))
     } else {
       setMemberAge(0)
     }

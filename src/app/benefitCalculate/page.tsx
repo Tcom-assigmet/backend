@@ -9,11 +9,17 @@ const BenefitCalculate: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<'calculator' | 'details' | 'results'>('calculator');
   
   const {
+    benefitCalculatorProcessInstanceId,
     setBenefitCalRequiredFilelds,
     setBenefitCalculatorProcessInstanceId,
     setBenefitCalculatorTaskInitiated,
     setCountBenefitCalculations,clearBenefitCalculatorFormValues,resetBenefitCalculatorFormData
   } = useStore();
+  React.useEffect(() => {
+    if (benefitCalculatorProcessInstanceId === null) {
+      setCurrentStep('calculator');
+    }
+  }, [benefitCalculatorProcessInstanceId]);
 
   const cancel = () => {
     setCurrentStep('calculator');

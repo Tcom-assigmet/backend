@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Calculator, ChevronRight, Settings, ChevronLeft, ChevronRight as ChevronRightArrow } from 'lucide-react';
 import React, { FC, useState } from 'react';
+import { useStore } from '@/src/store/useStore';
 
 interface SidebarProps {
   className?: string;
@@ -25,6 +26,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['benefit-calculator']);
   const [activeItem, setActiveItem] = useState('benefit-calculator');
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const {setBenefitCalRequiredFilelds, resetBenefitCalculatorFormData,setBenefitCalculatorProcessInstanceId,clearBenefitCalculatorFormValues,setBenefitCalculatorTaskInitiated,setCountBenefitCalculations,} =useStore();
 
   const menuItems: MenuItem[] = [
     {
@@ -53,8 +55,21 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
     );
   };
 
+  const handleStartNew = () => {
+   
+    setBenefitCalRequiredFilelds([]);
+    setBenefitCalculatorProcessInstanceId(null);
+    setBenefitCalculatorTaskInitiated(false);
+    setCountBenefitCalculations(0);
+    clearBenefitCalculatorFormValues();
+    resetBenefitCalculatorFormData();
+  };
+
+
   const handleItemClick = (itemId: string, hasSubItems: boolean) => {
+    
     setActiveItem(itemId);
+    
     if (hasSubItems && !isCollapsed) {
       toggleExpanded(itemId);
     }
@@ -138,6 +153,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
                 <div className="ml-6 mt-1 space-y-1">
                   {item.subItems.map((subItem) => (
                     <Link
+                      onClick={() => handleStartNew()}
                       key={subItem.id}
                       href={subItem.href}
                       className="flex items-center gap-3 px-3 py-2 text-sm text-[#605e5c] hover:bg-[#f3f2f1] hover:text-[#323130] rounded transition-colors"
