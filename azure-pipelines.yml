@@ -1,0 +1,147 @@
+# # Node.js
+# # Build a general Node.js project with npm and deploy to Azure Web App
+# # Add steps that analyze code, save build artifacts, deploy, and more:
+# # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+# trigger:
+# - main
+
+# pool:
+#   vmImage: ubuntu-latest
+
+# variables:
+#   nodeVersion: '22.x'
+
+# jobs:
+# - job: BuildAndDeploy
+#   displayName: 'Build and Deploy Application'
+#   steps:
+#   - task: NodeTool@0
+#     inputs:
+#       versionSpec: $(nodeVersion)
+#     displayName: 'Step 1: Install Node.js'
+
+#   - task: Cache@2
+#     inputs:
+#       key: 'npm | "$(Agent.OS)" | package-lock.json'
+#       restoreKeys: |
+#         npm | "$(Agent.OS)"
+#       path: $(npm_config_cache)
+#     displayName: 'Step 2: Cache npm'
+
+#   - script: |
+#       npm install --legacy-peer-deps
+#       npm run build
+#     displayName: 'Step 3: npm install and build'
+
+#   - script: |
+#       mkdir -p build/standalone/build
+#       mv ./build/static ./build/standalone/build
+#       mv ./public ./build/standalone
+#     displayName: 'Step 4: Prepare build structure'
+
+#   - script: |
+#       sudo apt-get update && sudo apt-get install -y zip
+#     displayName: 'Step 5: Install zip utility'
+
+#   - script: |
+#       zip -r app-$(Build.BuildId).zip build/standalone -x "*.git*" "azure-pipelines.yml"
+#       ls -lah
+#     displayName: 'Step 6: Create deployment package'
+
+#   - script: |
+#       echo "Starting Deployment Step"
+#       echo "Listing files before deployment:"
+#       ls -lah
+#     displayName: 'Step 7: Pre-deployment verification'
+
+#   - task: AzureWebApp@1
+#     inputs:
+#       azureSubscription: 'frontend-service-connection'
+#       appType: 'webAppLinux'
+#       appName: 'camunda-dba'
+#       package: '$(System.DefaultWorkingDirectory)/app-$(Build.BuildId).zip'
+#       runtimeStack: 'NODE|22-lts'
+#       deploymentMethod: 'zipDeploy'
+#     displayName: 'Step 8: Deploy to Azure Web App'
+# Node.js
+# Build a general Node.js project with npm and deploy to Azure Web App
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+trigger:
+- dev
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: vg-fe-dev
+
+stages:
+- stage: Build
+  displayName: 'Build Application'
+  jobs:
+  - job: BuildApp
+    displayName: 'Build and Package Application'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '22.x'
+      displayName: 'Step 1: Install Node.js'
+
+    - script: |
+        echo "NEXT_PUBLIC_BASE_URL=$(NEXT_PUBLIC_BASE_URL)"
+        npm install --legacy-peer-deps
+        npm run build
+      displayName: 'Step 2: npm install and build'
+
+    - script: |
+        mkdir -p build/standalone/build
+        mv ./build/static ./build/standalone/build
+        mv ./public ./build/standalone
+      displayName: 'Step 3: Prepare build structure'
+
+    - script: |
+        sudo apt-get update && sudo apt-get install -y zip
+      displayName: 'Step 4: Install zip utility'
+
+    - script: |
+        zip -r app-$(Build.BuildId).zip build/standalone -x "*.git*" "azure-pipelines.yml"
+        ls -lah
+      displayName: 'Step 5: Create deployment package'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(System.DefaultWorkingDirectory)/app-$(Build.BuildId).zip'
+        artifactName: 'build-artifact'
+        publishLocation: 'Container'
+      displayName: 'Step 6: Publish build artifacts'
+
+- stage: Deploy
+  displayName: 'Deploy to Azure'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeployToAzure
+    displayName: 'Deploy to Azure Web App'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: |
+              echo "Starting Deployment Step"
+              echo "Listing downloaded artifacts:"
+              ls -lah $(Pipeline.Workspace)/build-artifact/
+            displayName: 'Step 1: Pre-deployment verification'
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: 'frontend-service-connection'
+              appType: 'webAppLinux'
+              appName: 'camunda-dba'
+              package: '$(Pipeline.Workspace)/build-artifact/app-$(Build.BuildId).zip'
+              runtimeStack: 'NODE|22-lts'
+              deploymentMethod: 'zipDeploy'
+            displayName: 'Step 2: Deploy to Azure Web App'
