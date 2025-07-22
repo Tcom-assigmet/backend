@@ -118,39 +118,50 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
   // Validation
   const validateSingleField = useCallback(
     (field: keyof FormData): string | undefined => {
-      const minBirthDate = new Date(1900, 0, 1)
-      const maxBirthDate = new Date()
-      const maxFutureDate = new Date()
-      maxFutureDate.setFullYear(maxFutureDate.getFullYear() + 10)
+      try {
+        const minBirthDate = new Date(1900, 0, 1)
+        const maxBirthDate = new Date()
+        const maxFutureDate = new Date()
+        maxFutureDate.setFullYear(maxFutureDate.getFullYear() + 10)
 
-      switch (field) {
-        case "firstName":
-          return validateName(formData.firstName, "First name")
-        case "lastName":
-          return validateName(formData.lastName, "Last name")
-        case "memberId":
-          return validateMemberId(formData.memberId)
-        case "dateOfBirth":
-          return validateDate(formData.dateOfBirth, "Date of Birth", minBirthDate, maxBirthDate)
-        case "dateJoinedFund":
-          if (!shouldShowDateJoinedFund) return undefined
-          return validateDate(
-            formData.dateJoinedFund,
-            "Date Joined Fund",
-            formData.dateOfBirth ? new Date(formData.dateOfBirth.getTime()) : undefined,
-          )
-        case "effectiveDate":
-          return validateDate(formData.effectiveDate, "Effective Date", formData.dateOfBirth, maxFutureDate)
-        case "calculationDate":
-          return validateDate(formData.calculationDate, "Calculation Date", formData.effectiveDate, maxFutureDate)
-        case "benefitClass":
-          return !formData.benefitClass ? "Benefit Class is required" : undefined
-        case "paymentType":
-          return !formData.paymentType ? "Payment Type is required" : undefined
-        case "planNumber":
-          return !formData.planNumber ? "Plan Number is required" : undefined
-        default:
-          return undefined
+        switch (field) {
+          case "firstName":
+            if (!formData.firstName?.trim()) return "First name is required"
+            if (formData.firstName.trim().length < 2) return "First name must be at least 2 characters"
+            return undefined
+          case "lastName":
+            if (!formData.lastName?.trim()) return "Last name is required"
+            if (formData.lastName.trim().length < 2) return "Last name must be at least 2 characters"
+            return undefined
+          case "memberId":
+            if (!formData.memberId?.trim()) return "Member ID is required"
+            if (!/^[A-Z0-9]{6,12}$/i.test(formData.memberId.trim())) return "Invalid Member ID format"
+            return undefined
+          case "dateOfBirth":
+            if (!formData.dateOfBirth) return "Date of birth is required"
+            return undefined
+          case "dateJoinedFund":
+            if (!shouldShowDateJoinedFund) return undefined
+            if (!formData.dateJoinedFund) return "Date joined fund is required"
+            return undefined
+          case "effectiveDate":
+            if (!formData.effectiveDate) return "Effective date is required"
+            return undefined
+          case "calculationDate":
+            if (!formData.calculationDate) return "Calculation date is required"
+            return undefined
+          case "benefitClass":
+            return !formData.benefitClass?.trim() ? "Benefit Class is required" : undefined
+          case "paymentType":
+            return !formData.paymentType?.trim() ? "Payment Type is required" : undefined
+          case "planNumber":
+            return !formData.planNumber?.trim() ? "Plan Number is required" : undefined
+          default:
+            return undefined
+        }
+      } catch (error) {
+        console.error('Validation error for field', field, error)
+        return "Validation error"
       }
     },
     [formData, shouldShowDateJoinedFund],
@@ -257,21 +268,39 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
   }, [touchedFields, validateSingleField, formData])
 
   const isFormValid = useMemo(() => {
-    const errors = validateAllFields()
-    const hasRequiredFieldsError =
-      Object.keys(errors).length > 0 ||
-      !formData.dateOfBirth ||
-      !formData.effectiveDate ||
-      !formData.calculationDate ||
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.memberId ||
-      !formData.benefitClass ||
-      !formData.paymentType ||
-      !formData.planNumber ||
-      (shouldShowDateJoinedFund && !formData.dateJoinedFund)
+    // Check if all required fields have values
+    const requiredFields = [
+      formData.firstName?.trim(),
+      formData.lastName?.trim(), 
+      formData.memberId?.trim(),
+      formData.dateOfBirth,
+      formData.effectiveDate,
+      formData.calculationDate,
+      formData.benefitClass?.trim(),
+      formData.paymentType?.trim(),
+      formData.planNumber?.trim()
+    ]
 
-    return !hasRequiredFieldsError
+    // Add dateJoinedFund if it should be shown
+    if (shouldShowDateJoinedFund) {
+      requiredFields.push(formData.dateJoinedFund)
+    }
+
+    // Check if any required field is missing
+    const hasAllRequiredFields = requiredFields.every(field => field != null && field !== '')
+
+    if (!hasAllRequiredFields) {
+      return false
+    }
+
+    // Check for validation errors (but only for critical ones)
+    const errors = validateAllFields()
+    const criticalErrors = Object.keys(errors).filter(key => 
+      errors[key as keyof ValidationErrors] && 
+      key !== 'dateLogic' // Allow form submission even with minor date logic warnings
+    )
+
+    return criticalErrors.length === 0
   }, [formData, validateAllFields, shouldShowDateJoinedFund])
 
   // API calls
@@ -445,6 +474,28 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
     updateValidationErrors()
   }, [updateValidationErrors])
 
+  // Debug effect to help understand form validation issues
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Form validation debug:', {
+        isFormValid,
+        formData,
+        validationErrors: validateAllFields(),
+        hasAllRequiredFields: [
+          !!formData.firstName?.trim(),
+          !!formData.lastName?.trim(), 
+          !!formData.memberId?.trim(),
+          !!formData.dateOfBirth,
+          !!formData.effectiveDate,
+          !!formData.calculationDate,
+          !!formData.benefitClass?.trim(),
+          !!formData.paymentType?.trim(),
+          !!formData.planNumber?.trim()
+        ]
+      })
+    }
+  }, [isFormValid, formData, validateAllFields])
+
   return (
     <div className="bg-white rounded-md shadow-sm">
       <div className="border-b border-gray-200 px-6 py-4">
@@ -500,13 +551,31 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
         />
 
         <div className="border-t border-gray-200 px-6 py-4 flex justify-between">
-          <div></div>
+          <div>
+            {process.env.NODE_ENV === 'development' && !isFormValid && (
+              <div className="text-xs text-gray-500 space-y-1">
+                <div>Missing fields:</div>
+                {!formData.firstName?.trim() && <div>• First Name</div>}
+                {!formData.lastName?.trim() && <div>• Last Name</div>}
+                {!formData.memberId?.trim() && <div>• Member ID</div>}
+                {!formData.dateOfBirth && <div>• Date of Birth</div>}
+                {!formData.effectiveDate && <div>• Effective Date</div>}
+                {!formData.calculationDate && <div>• Calculation Date</div>}
+                {!formData.benefitClass?.trim() && <div>• Benefit Class</div>}
+                {!formData.paymentType?.trim() && <div>• Payment Type</div>}
+                {!formData.planNumber?.trim() && <div>• Plan Number</div>}
+              </div>
+            )}
+          </div>
           <div className="flex gap-2">
             <Button
               type="button"
               onClick={handleNext}
-              className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`${!isFormValid || isSubmitting 
+                ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                : 'bg-blue-600 hover:bg-blue-700'} text-white transition-colors`}
               disabled={!isFormValid || isSubmitting}
+              title={!isFormValid ? "Please fill all required fields correctly" : ""}
             >
               {isSubmitting ? "Processing..." : isProcessStarted ? "Next: Enter Details" : "Start Process & Continue"}
             </Button>
