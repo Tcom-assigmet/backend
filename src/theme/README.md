@@ -2,6 +2,13 @@
 
 This directory contains the centralized color theme configuration for the application.
 
+## Main Color Palette
+The theme is built around these four core colors:
+- **#333446** - Dark blue-gray (headers, primary buttons, text)
+- **#7F8CAA** - Medium blue-gray (secondary elements, borders, icons)  
+- **#B8CFCE** - Light blue-green (hover states, borders, backgrounds)
+- **#EAEFEF** - Very light gray (page backgrounds, cards)
+
 ## Files
 
 - `colors.ts` - Main color definitions organized by category
@@ -15,11 +22,17 @@ This directory contains the centralized color theme configuration for the applic
 ```typescript
 import { colors, colorTokens } from '@/src/theme';
 
-// Use specific color
-const primaryColor = colors.primary[500];
+// Use main palette colors directly
+const darkColor = colorTokens.darkest; // #333446
+const mediumColor = colorTokens.medium; // #7F8CAA
+const lightColor = colorTokens.lightMedium; // #B8CFCE
+const bgColor = colorTokens.lightest; // #EAEFEF
 
-// Use color token
-const headerBackground = colorTokens.headerBg;
+// Use specific color from scales
+const primaryColor = colors.primary[500]; // #7F8CAA
+
+// Use layout-specific colors
+const headerBackground = colorTokens.headerBg; // #333446
 ```
 
 ### Using utility functions
@@ -92,18 +105,21 @@ import { colorTokens } from '@/src/theme';
 <div className="bg-header"> // where .bg-header uses the theme color
 ```
 
-## Custom Colors Found in Codebase
+## Main Palette Usage
 
-The following hard-coded colors from the codebase have been mapped to theme colors:
+The four main colors are used throughout the application:
 
-- `#333446` → `colors.layout.header.background`
-- `#EAEFEF` → `colors.layout.page.background`
-- `#f8f9fa` → `colors.layout.sidebar.background`
-- `#e1e5e9` → `colors.layout.sidebar.border`
-- `#0d9488` → `colors.secondary[600]`
-- `#ef4444` → `colors.semantic.error[500]`
-- `#3b82f6` → `colors.semantic.info[500]`
-- `#16a34a` → `colors.semantic.success[600]`
+- **#333446** (darkest) → Headers, primary buttons, main text, selected states
+- **#7F8CAA** (medium) → Secondary buttons, icons, placeholder text, borders
+- **#B8CFCE** (lightMedium) → Hover states, card borders, form borders, inactive states  
+- **#EAEFEF** (lightest) → Page backgrounds, sidebar background, card backgrounds
+
+## Exceptions (Non-Palette Colors)
+
+These colors are kept for semantic purposes:
+- **Error/Warning colors** → Red (`#ef4444`) and yellow for critical feedback
+- **Success colors** → Green for positive feedback  
+- **White** → Card backgrounds and input backgrounds
 
 ## TypeScript Support
 

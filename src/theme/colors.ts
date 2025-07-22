@@ -1,42 +1,43 @@
 /**
  * Centralized color theme configuration
  * This file contains all colors used throughout the application
+ * Main color palette: #333446, #7F8CAA, #B8CFCE, #EAEFEF
  */
 
 export const colors = {
-  // Base colors (from global CSS)
+  // Base colors
   base: {
     white: '#ffffff',
     black: '#000000',
     transparent: 'transparent',
   },
 
-  // Primary brand colors
+  // Primary brand colors - Based on #333446 (dark blue-gray)
   primary: {
-    50: '#f0f9ff',
-    100: '#e0f2fe',
-    200: '#bae6fd',
-    300: '#7dd3fc',
-    400: '#38bdf8',
-    500: '#0ea5e9', // Primary blue
-    600: '#0284c7',
-    700: '#0369a1',
-    800: '#075985',
-    900: '#0c4a6e',
+    50: '#f8f9fa',
+    100: '#e9ecef',
+    200: '#dee2e6',
+    300: '#ced4da',
+    400: '#adb5bd',
+    500: '#7F8CAA', // Medium blue-gray from palette
+    600: '#6c757d',
+    700: '#495057',
+    800: '#343a40',
+    900: '#333446', // Main dark color from palette
   },
 
-  // Secondary colors (teal - heavily used in the app)
+  // Secondary colors - Based on #B8CFCE (light blue-green)
   secondary: {
-    50: '#f0fdfa',
-    100: '#ccfbf1',
-    200: '#99f6e4',
-    300: '#5eead4',
-    400: '#2dd4bf',
-    500: '#14b8a6',
-    600: '#0d9488', // Main teal color used in buttons
-    700: '#0f766e',
-    800: '#115e59',
-    900: '#134e4a',
+    50: '#f0f4f4',
+    100: '#e6eeee',
+    200: '#d4e2e1',
+    300: '#B8CFCE', // Light blue-green from palette
+    400: '#a5bfbd',
+    500: '#92afad',
+    600: '#7f9f9c',
+    700: '#6c8f8b',
+    800: '#597f7a',
+    900: '#466f69',
   },
 
   // Semantic colors
@@ -91,88 +92,88 @@ export const colors = {
     },
   },
 
-  // Neutral colors (grays)
+  // Neutral colors - Based on palette colors with variations
   neutral: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
+    50: '#EAEFEF', // Lightest color from palette
+    100: '#e0e7e7',
+    200: '#d6dfdf',
+    300: '#ccd7d7',
+    400: '#B8CFCE', // Light blue-green from palette
+    500: '#a4bbba',
+    600: '#90a7a6',
+    700: '#7c9392',
+    800: '#687f7e',
+    900: '#333446', // Darkest color from palette
   },
 
-  // Layout specific colors
+  // Layout specific colors - Using main palette
   layout: {
     // Header colors
     header: {
-      background: '#333446', // Dark header background
-      text: '#ffffff',
-      textSecondary: '#f3f4f6',
-      border: '#e5e7eb',
-      searchBorder: '#e5e7eb',
-      searchFocus: '#14b8a6',
-      notificationDot: '#ef4444',
-      avatar: '#0d9488',
+      background: '#333446', // Dark color from palette
+      text: '#EAEFEF', // Light color from palette
+      textSecondary: '#B8CFCE', // Light blue-green from palette
+      border: '#7F8CAA', // Medium color from palette
+      searchBorder: '#B8CFCE',
+      searchFocus: '#7F8CAA',
+      notificationDot: '#ef4444', // Exception - keeping red for notifications
+      avatar: '#7F8CAA', // Medium color from palette
     },
 
     // Sidebar colors
     sidebar: {
-      background: '#f8f9fa', // Light sidebar background
-      border: '#e1e5e9',
-      text: '#323130',
-      textSecondary: '#605e5c',
-      textMuted: '#605e5c',
-      hover: '#f3f2f1',
-      active: '#deecf9',
-      activeText: '#0078d4',
-      iconColor: '#605e5c',
+      background: '#EAEFEF', // Light color from palette
+      border: '#B8CFCE', // Light blue-green from palette
+      text: '#333446', // Dark color from palette
+      textSecondary: '#7F8CAA', // Medium color from palette
+      textMuted: '#7F8CAA',
+      hover: '#B8CFCE',
+      active: '#7F8CAA',
+      activeText: '#333446',
+      iconColor: '#7F8CAA',
     },
 
     // Page background
     page: {
-      background: '#EAEFEF', // Main page background
-      backgroundAlt: '#f9fafb',
-      backgroundSecondary: '#f3f4f6',
+      background: '#EAEFEF', // Main light color from palette
+      backgroundAlt: '#B8CFCE', // Light blue-green from palette
+      backgroundSecondary: '#7F8CAA', // Medium color from palette
     },
   },
 
-  // Component specific colors
+  // Component specific colors - Using main palette
   components: {
     // Button colors
     button: {
       primary: {
-        background: '#0d9488',
-        backgroundHover: '#0f766e',
-        text: '#ffffff',
+        background: '#333446', // Dark color from palette
+        backgroundHover: '#7F8CAA', // Medium color from palette
+        text: '#EAEFEF', // Light color from palette
       },
       secondary: {
-        background: '#3b82f6',
-        backgroundHover: '#2563eb',
-        text: '#ffffff',
+        background: '#7F8CAA', // Medium color from palette
+        backgroundHover: '#333446', // Dark color from palette
+        text: '#EAEFEF', // Light color from palette
       },
       error: {
-        background: '#ef4444',
+        background: '#ef4444', // Exception - keeping red for errors
         backgroundHover: '#dc2626',
         text: '#ffffff',
       },
       outline: {
         background: 'transparent',
-        backgroundHover: '#f9fafb',
-        border: '#d1d5db',
-        text: '#374151',
+        backgroundHover: '#B8CFCE', // Light blue-green from palette
+        border: '#7F8CAA', // Medium color from palette
+        text: '#333446', // Dark color from palette
       },
       ghost: {
         background: 'transparent',
-        backgroundHover: '#f3f4f6',
-        text: '#374151',
+        backgroundHover: '#B8CFCE', // Light blue-green from palette
+        text: '#333446', // Dark color from palette
       },
       disabled: {
-        background: '#d1d5db',
-        text: '#9ca3af',
+        background: '#B8CFCE', // Light blue-green from palette
+        text: '#7F8CAA', // Medium color from palette
       },
     },
 
@@ -180,65 +181,71 @@ export const colors = {
     form: {
       input: {
         background: '#ffffff',
-        border: '#d1d5db',
-        borderFocus: '#3b82f6',
-        text: '#111827',
-        placeholder: '#9ca3af',
+        border: '#B8CFCE', // Light blue-green from palette
+        borderFocus: '#7F8CAA', // Medium color from palette
+        text: '#333446', // Dark color from palette
+        placeholder: '#7F8CAA', // Medium color from palette
       },
       select: {
         background: '#ffffff',
-        backgroundHover: '#f9fafb',
-        backgroundFocus: '#eff6ff',
-        border: '#d1d5db',
-        text: '#111827',
+        backgroundHover: '#EAEFEF', // Light color from palette
+        backgroundFocus: '#B8CFCE', // Light blue-green from palette
+        border: '#B8CFCE', // Light blue-green from palette
+        text: '#333446', // Dark color from palette
       },
       label: {
-        text: '#374151',
-        required: '#ef4444',
+        text: '#333446', // Dark color from palette
+        required: '#ef4444', // Exception - keeping red for required fields
       },
     },
 
     // Card colors
     card: {
       background: '#ffffff',
-      border: '#e5e7eb',
-      shadow: 'rgba(0, 0, 0, 0.1)',
+      border: '#B8CFCE', // Light blue-green from palette
+      shadow: 'rgba(51, 52, 70, 0.1)', // Using dark color with opacity
     },
 
     // Progress bar colors
     progress: {
-      background: '#e5e7eb',
-      fill: '#0d9488',
+      background: '#B8CFCE', // Light blue-green from palette
+      fill: '#333446', // Dark color from palette
     },
 
     // Calendar colors
     calendar: {
-      selected: '#16a34a',
-      selectedHover: '#15803d',
-      selectedText: '#ffffff',
-      today: '#15803d',
-      todayBackground: '#dcfce7',
-      year: '#16a34a',
-      yearBackground: '#bbf7d0',
+      selected: '#333446', // Dark color from palette
+      selectedHover: '#7F8CAA', // Medium color from palette
+      selectedText: '#EAEFEF', // Light color from palette
+      today: '#7F8CAA', // Medium color from palette
+      todayBackground: '#B8CFCE', // Light blue-green from palette
+      year: '#333446', // Dark color from palette
+      yearBackground: '#B8CFCE', // Light blue-green from palette
     },
   },
 } as const;
 
-// Color tokens for easy access
+// Color tokens for easy access - Using main palette
 export const colorTokens = {
-  // Primary colors
-  primary: colors.primary[500],
-  primaryHover: colors.primary[600],
-  primaryLight: colors.primary[100],
-  primaryDark: colors.primary[700],
+  // Main palette colors
+  darkest: '#333446', // Primary dark color
+  medium: '#7F8CAA', // Medium blue-gray  
+  lightMedium: '#B8CFCE', // Light blue-green
+  lightest: '#EAEFEF', // Lightest color
 
-  // Secondary colors
-  secondary: colors.secondary[600],
-  secondaryHover: colors.secondary[700],
-  secondaryLight: colors.secondary[100],
-  secondaryDark: colors.secondary[800],
+  // Primary colors based on palette
+  primary: colors.primary[500], // #7F8CAA
+  primaryHover: colors.primary[900], // #333446
+  primaryLight: colors.neutral[50], // #EAEFEF
+  primaryDark: colors.primary[900], // #333446
 
-  // Semantic colors
+  // Secondary colors based on palette
+  secondary: colors.secondary[300], // #B8CFCE
+  secondaryHover: colors.secondary[700], // darker variation
+  secondaryLight: colors.neutral[50], // #EAEFEF
+  secondaryDark: colors.secondary[900],
+
+  // Semantic colors (exceptions kept for warnings/errors)
   success: colors.semantic.success[600],
   successLight: colors.semantic.success[100],
   warning: colors.semantic.warning[500],
@@ -248,26 +255,26 @@ export const colorTokens = {
   info: colors.semantic.info[500],
   infoLight: colors.semantic.info[100],
 
-  // Layout colors
-  headerBg: colors.layout.header.background,
-  sidebarBg: colors.layout.sidebar.background,
-  pageBg: colors.layout.page.background,
+  // Layout colors using main palette
+  headerBg: '#333446', // Dark from palette
+  sidebarBg: '#EAEFEF', // Light from palette
+  pageBg: '#EAEFEF', // Light from palette
 
-  // Text colors
-  textPrimary: colors.neutral[900],
-  textSecondary: colors.neutral[600],
-  textMuted: colors.neutral[500],
-  textLight: colors.neutral[400],
+  // Text colors using main palette
+  textPrimary: '#333446', // Dark from palette
+  textSecondary: '#7F8CAA', // Medium from palette
+  textMuted: '#7F8CAA', // Medium from palette
+  textLight: '#B8CFCE', // Light blue-green from palette
 
-  // Background colors
+  // Background colors using main palette
   backgroundPrimary: colors.base.white,
-  backgroundSecondary: colors.neutral[50],
-  backgroundTertiary: colors.neutral[100],
+  backgroundSecondary: '#EAEFEF', // Light from palette
+  backgroundTertiary: '#B8CFCE', // Light blue-green from palette
 
-  // Border colors
-  borderPrimary: colors.neutral[200],
-  borderSecondary: colors.neutral[300],
-  borderLight: colors.neutral[100],
+  // Border colors using main palette
+  borderPrimary: '#B8CFCE', // Light blue-green from palette
+  borderSecondary: '#7F8CAA', // Medium from palette
+  borderLight: '#EAEFEF', // Light from palette
 } as const;
 
 export type ColorToken = keyof typeof colorTokens;
