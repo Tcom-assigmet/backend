@@ -1,6 +1,6 @@
 // api.ts
 
-import { FormValue } from "./benefitcalculator";
+import { FormValue, ApiError, BaseApiResponse } from "./common";
 
 export interface BenefitCalculatorRequest {
   firstName: string;
@@ -27,20 +27,10 @@ export interface BenefitCalculatorResponse {
   message?: string;
 }
 
-export interface ApiError {
-  error: string;
-  code?: string;
-  details?: Record<string, unknown>;
-}
-
 export type ApiResponse<T = BenefitCalculationResult> = T | ApiError;
 
-export interface BenefitCalculationResult {
-  success: boolean;
-  data?: Record<string, unknown>;
-  message?: string;
+export interface BenefitCalculationResult extends BaseApiResponse<Record<string, unknown>> {
   calculationId?: string;
-  timestamp?: string;
 }
 
 export interface FormSubmissionData {

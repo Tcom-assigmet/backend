@@ -15,7 +15,7 @@ const config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   
   // Module paths
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/components/(.*)$': '<rootDir>/src/components/$1',
     '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
@@ -26,6 +26,7 @@ const config = {
     '^@/services/(.*)$': '<rootDir>/src/services/$1',
     '^@/constants/(.*)$': '<rootDir>/src/constants/$1',
     '^@/config/(.*)$': '<rootDir>/src/config/$1',
+    '^@/theme$': '<rootDir>/src/theme/index.ts',
     // Mock static assets
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
