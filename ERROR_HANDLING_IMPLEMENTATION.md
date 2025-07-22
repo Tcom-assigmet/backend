@@ -21,9 +21,18 @@ A React context provider that:
 - Manages global alert state
 - Displays alerts in a fixed position (top-right corner)
 - Provides auto-dismiss functionality for info alerts
-- Integrates with the existing UI Alert component
+- **Fixed layout issues**: Simplified alert styling for proper text alignment
+- **Improved close functionality**: Proper timeout management for auto-dismiss
 
-### 3. Enhanced BaseApiService (`src/utils/baseAPIService.ts`)
+### 3. ErrorBoundary (`src/components/ui/ErrorBoundary.tsx`)
+
+A React error boundary component that:
+- Catches JavaScript errors anywhere in the component tree
+- Displays a full-screen "Something went wrong" message
+- Provides a "Try Again" button to recover from errors
+- Shows detailed error information in development mode
+
+### 4. Enhanced BaseApiService (`src/utils/baseAPIService.ts`)
 
 Updated base service class that:
 - Automatically shows error alerts for API failures
@@ -62,11 +71,18 @@ The system provides specific error messages for different scenarios:
 
 ### Alert Display
 
-Alerts appear in the top-right corner with:
-- Appropriate styling based on error type (destructive for errors)
-- Close button for manual dismissal
-- Auto-dismiss for informational messages (5 seconds)
-- Proper accessibility attributes
+**Side Alerts** appear in the top-right corner with:
+- **Fixed styling**: Proper text alignment and readable layout
+- **Color-coded backgrounds**: Red for errors, yellow for warnings, blue for info
+- **Reliable close button**: Manual dismissal with proper timeout cleanup
+- **Auto-dismiss**: Info alerts automatically close after 5 seconds
+- **Proper accessibility**: ARIA attributes and keyboard navigation
+
+**Main Window Error** displays a full-screen page with:
+- "Something went wrong" message
+- "Try Again" button to recover from errors
+- Clean, centered layout with clear instructions
+- Development mode shows error details for debugging
 
 ## Implementation Details
 
@@ -133,11 +149,13 @@ The system uses the server response message when available, falling back to stan
 
 1. **Created**:
    - `src/utils/alertUtils.ts` - Alert management utilities
-   - `src/components/ui/AlertProvider.tsx` - Global alert provider
+   - `src/components/ui/AlertProvider.tsx` - Global alert provider with fixed styling
+   - `src/components/ui/ErrorBoundary.tsx` - Error boundary for application errors
+   - `src/components/demo/ErrorTestDemo.tsx` - Demo component for testing error handling
 
 2. **Modified**:
    - `src/utils/baseAPIService.ts` - Added automatic error handling
-   - `src/app/Mainlayout.tsx` - Added AlertProvider wrapper
+   - `src/app/Mainlayout.tsx` - Added AlertProvider and ErrorBoundary wrappers
    - `src/components/forms/benefitCalculatorStartForm/BenefitCalculatorStartForm.tsx` - Updated error handling
    - `src/components/forms/enterCalculationDetailsForm/EnterCalculationDetailsForm.tsx` - Updated error handling
    - `src/components/forms/BulkProcessBenefitCalForm.tsx` - Added comprehensive error handling
@@ -182,5 +200,35 @@ try {
   AlertManager.showError(getNetworkErrorMessage(), 'Upload Error');
 }
 ```
+
+## Testing the Implementation
+
+To test the error handling system, you can use the demo component:
+
+```typescript
+import { ErrorTestDemo } from '@/src/components/demo/ErrorTestDemo';
+
+// Add this component to any page to test the error handling
+<ErrorTestDemo />
+```
+
+The demo provides buttons to test:
+- API error alerts (side popup)
+- Network error alerts (side popup)
+- Warning alerts (side popup)
+- Info alerts (side popup with auto-dismiss)
+- Application errors (full-screen error page)
+
+## Fixes Applied
+
+### Issue 1: Alert Text Alignment
+- **Problem**: Alert text was "chunked to left corner" and not clear
+- **Solution**: Replaced complex grid-based Alert component with simplified custom styling
+- **Result**: Text is now properly aligned, readable, and clearly formatted
+
+### Issue 2: Alert Not Closing
+- **Problem**: Close button was not working properly
+- **Solution**: Improved timeout management with proper cleanup using useRef
+- **Result**: Close button now works reliably, and timeouts are properly managed
 
 This implementation ensures that users always receive appropriate feedback when API requests fail, improving the overall user experience and making error handling consistent across the application.
