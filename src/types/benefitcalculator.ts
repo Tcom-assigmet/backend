@@ -1,36 +1,44 @@
-// benefitcalculator.ts
+import type { ProcessStatus } from '@/constants';
 
+// Base types
+export type DataType = 'Double' | 'String' | 'Boolean' | 'Date';
+export type FormValue = string | number | boolean | Date | null;
+export type FormErrors = Record<string, string>;
+export type ProcessedFormData = Record<string, FormValue>;
+
+// Benefit Calculator Domain Types
 export interface BenefitClass {
-  id: string;
-  value: string;
+  readonly id: string;
+  readonly value: string;
 }
 
 export interface PlanNumber {
-  id: string;
-  value: string;
-  description?: string;
+  readonly id: string;
+  readonly value: string;
+  readonly description?: string;
 }
 
 export interface BenefitClassRule {
-  id: string;
-  minAge: number;
-  maxAge: number;
+  readonly id: string;
+  readonly minAge: number;
+  readonly maxAge: number;
 }
 
 export interface PaymentType {
-  id: string;
-  value: string;
-  benefitClasses: BenefitClassRule[];
+  readonly id: string;
+  readonly value: string;
+  readonly benefitClasses: readonly BenefitClassRule[];
 }
 
-export interface FormData {
+// Form Data Types
+export interface BenefitCalculatorFormData {
   firstName: string;
   lastName: string;
   memberId: string;
-  dateOfBirth: Date | undefined;
-  dateJoinedFund: Date | undefined;
-  effectiveDate: Date | undefined;
-  calculationDate: Date | undefined;
+  dateOfBirth: Date | null;
+  dateJoinedFund: Date | null;
+  effectiveDate: Date | null;
+  calculationDate: Date | null;
   benefitClass: string;
   paymentType: string;
   planNumber: string;
@@ -52,21 +60,18 @@ export interface ValidationErrors {
   submit?: string;
 }
 
+// Field Configuration Types
 export interface RequiredField {
-  id: string;
-  label: string;
-  dataType: DataType;
-  required?: boolean;
-  min?: number;
-  max?: number;
-  pattern?: string;
+  readonly id: string;
+  readonly label: string;
+  readonly dataType: DataType;
+  readonly required: boolean;
+  readonly min?: number;
+  readonly max?: number;
+  readonly pattern?: string;
 }
 
-export type DataType = 'Double' | 'String' | 'Boolean' | 'Date';
-export type FormValue = string | number | boolean | null;
-export type FormErrors = Record<string, string>;
-export type ProcessedFormData = Record<string, FormValue>;
-
+// Component Props Types
 export interface BenefitCalculationDetailFormFieldProps {
   field: RequiredField;
   value: FormValue;
@@ -76,6 +81,11 @@ export interface BenefitCalculationDetailFormFieldProps {
   onBlur?: (id: string) => void;
 }
 
+export interface BenefitCalculatorFormProps {
+  onClose?: () => void;
+}
+
+// Member and Calculation Data Types
 export interface MemberData {
   firstName?: string;
   lastName?: string;
@@ -97,38 +107,85 @@ export interface SubProcessData {
   totalVolAcctsAdd?: string;
   totalVolAcctsSub?: string;
   totalVolAcctsNet?: string;
+  [key: string]: string | number | undefined;
 }
 
 export interface BenefitCalFinalResult {
-  success: boolean;
-  memberData?: MemberData;
-  subProcessData?: SubProcessData;
+  readonly success: boolean;
+  readonly memberData?: MemberData;
+  readonly subProcessData?: SubProcessData;
+  readonly errors?: readonly string[];
+  readonly timestamp?: string;
 }
 
 export interface CalculationFactor {
-  key: string;
-  label: string;
-  value: string | number | undefined;
+  readonly key: string;
+  readonly label: string;
+  readonly value: string | number | undefined;
 }
 
+// Batch Processing Types
+export interface BatchStatus {
+  readonly batchId: string;
+  readonly status: ProcessStatus;
+  readonly totalRecords: number;
+  readonly processedRecords: number;
+  readonly successfulRecords: number;
+  readonly failedRecords: number;
+  readonly startTime: string;
+  readonly endTime?: string;
+}
+
+export interface CalculationResult {
+  readonly memberData: MemberData;
+  readonly subProcessData?: SubProcessData;
+}
+
+export interface ProcessingResult {
+  readonly batchId: string;
+  readonly processInstanceId: string;
+  readonly taskId: string;
+  readonly memberData: MemberData;
+  readonly result?: CalculationResult;
+  readonly error?: string;
+}
+
+// Store State Types
 export interface StoreState {
   benefitcalFinalResult?: BenefitCalFinalResult;
-  benefitCalRequiredFilelds?: RequiredField[];
+  benefitCalRequiredFilelds?: readonly RequiredField[];
 }
 
-export interface BenefitCalculatorFormProps {
-  onClose?: () => void;
+// API Response Types
+export interface ApiResponse<T = unknown> {
+  readonly success: boolean;
+  readonly data?: T;
+  readonly error?: string;
+  readonly message?: string;
 }
 
-export interface BenefitCalculatorFormData {
-  firstName: string;
-  lastName: string;
-  memberId: string;
-  dateOfBirth: Date | undefined;
-  dateJoinedFund: Date | undefined;
-  effectiveDate: Date | undefined;
-  calculationDate: Date | undefined;
-  benefitClass: string;
-  paymentType: string;
-  planNumber: string;
-}
+export interface BenefitCalculatorApiResponse extends ApiResponse<BenefitCalFinalResult> {}
+
+export interface BatchProcessApiResponse extends ApiResponse<BatchStatus> {}
+
+// Utility Types
+export type FormDataKeys = keyof BenefitCalculatorFormData;
+export type ValidationErrorKeys = keyof ValidationErrors;
+export type MemberDataKeys = keyof MemberData;
+
+// Type Guards
+export const isValidDataType = (value: string): value is DataType => {
+  return ['Double', 'String', 'Boolean', 'Date'].includes(value);
+};
+
+export const isValidProcessStatus = (value: string): value is ProcessStatus => {
+  return ['pending', 'processing', 'completed', 'failed', 'cancelled'].includes(value);
+};
+
+export const isMemberData = (obj: unknown): obj is MemberData => {
+  return typeof obj === 'object' && obj !== null;
+};
+
+export const isBenefitCalFinalResult = (obj: unknown): obj is BenefitCalFinalResult => {
+  return typeof obj === 'object' && obj !== null && 'success' in obj;
+};
