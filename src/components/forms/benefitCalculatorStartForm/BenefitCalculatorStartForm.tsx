@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from "../../ui/alert"
 import PersonalDetailsSection from "./sections/personal-details-section"
 import BenefitClassSection from "./sections/benefit-class-section"
 import { Button } from "../../ui/button"
-import { useFormLogger } from "@/src/hooks/useLogger"
 
 
 interface BenefitCalculatorFormProps {
@@ -30,13 +29,6 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
     benefitCalculatorTaskInitiated,
     benefitCalculatorProcessInstanceId,
   } = useStore()
-
-  // Form logging
-  const { trackFieldChange, trackFormSubmission, trackFormError } = useFormLogger({
-    formName: 'BenefitCalculatorStartForm',
-    trackValidationErrors: true,
-    trackFieldChanges: false // Set to true if you want to track individual field changes
-  });
 
   // State
   const [formData, setFormData] = useState<FormData>(benefitCalculatorFormData)
@@ -304,17 +296,6 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
       (shouldShowDateJoinedFund && !formData.dateJoinedFund)
 
     if (hasRequiredFieldsError) {
-      // Log form validation failure
-      const validationErrorsList = Object.values(errors);
-      trackFormSubmission(false, validationErrorsList, {
-        hasRequiredFieldsError: true,
-        missingFields: {
-          dateOfBirth: !formData.dateOfBirth,
-          effectiveDate: !formData.effectiveDate,
-          calculationDate: !formData.calculationDate,
-          dateJoinedFund: shouldShowDateJoinedFund && !formData.dateJoinedFund
-        }
-      });
       return
     }
 
@@ -347,16 +328,6 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
 
       console.log("Process started successfully:", response)
 
-      // Log successful form submission
-      trackFormSubmission(true, [], {
-        processInstanceId: response.processInstanceId,
-        benefitClass: formData.benefitClass,
-        paymentType: formData.paymentType,
-        planNumber: formData.planNumber,
-        memberAge: memberAge,
-        hasDateJoinedFund: shouldShowDateJoinedFund
-      });
-
       if (onNext) {
         onNext()
       } else if (onClose) {
@@ -364,18 +335,6 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
       }
     } catch (error) {
       console.error("Failed to start process:", error)
-      
-      // Log form submission error
-      trackFormError(error instanceof Error ? error : new Error('Unknown error'), {
-        requestBody: {
-          ...requestBody,
-          dateOfBirth: formData.dateOfBirth ? '[DATE]' : undefined,
-          dateJoinedFund: '[DATE]',
-          effectiveDate: '[DATE]',
-          calculationDate: '[DATE]'
-        }
-      });
-      
       setValidationErrors((prev) => ({
         ...prev,
         submit: error instanceof Error ? error.message : "Failed to start process. Please try again.",

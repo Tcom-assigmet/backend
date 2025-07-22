@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import MainLayout from "./Mainlayout";
-import { LoggerProvider } from "@/src/providers/LoggerProvider";
-import { loggerConfig } from "@/src/configs/logger.config";
 
 
 const geistSans = Geist({
@@ -29,15 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased` }>
-        <LoggerProvider
-          instrumentationKey={loggerConfig.instrumentationKey}
-          enableConsoleLogging={loggerConfig.enableConsoleLogging}
-          enableRemoteLogging={loggerConfig.enableRemoteLogging}
-          logLevel={loggerConfig.logLevel}
-          customProperties={loggerConfig.customProperties}
-        >
-          <MainLayout>{children}</MainLayout>
-        </LoggerProvider>
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   );
