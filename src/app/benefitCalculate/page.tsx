@@ -51,7 +51,7 @@ const BenefitCalculate: React.FC = () => {
 
   const renderHeader = (title: string, showStartNew: boolean = false) => (
     <div className="mb-6 flex justify-between items-center">
-      <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+                      <h2 className="text-2xl font-bold text-foreground">{title}</h2>
       <div className="flex gap-2">
         {showStartNew && (
           <button

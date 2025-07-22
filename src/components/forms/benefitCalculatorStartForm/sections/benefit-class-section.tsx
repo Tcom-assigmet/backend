@@ -38,14 +38,14 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
   benefitClasses,
 }) => {
   return (
-    <Card className="mx-6 mb-6 rounded-lg border border-gray-200">
+    <Card className="mx-6 mb-6 rounded-lg border border-border">
       <CardHeader className="pb-2">
-        <CardTitle className="text-md font-medium">Benefit Class & Payment Type</CardTitle>
+        <CardTitle className="text-md font-medium text-card-foreground">Benefit Class & Payment Type</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Benefit Class <span className="text-red-500">*</span>
             </label>
             <Select value={formData.benefitClass} onValueChange={(value) => onFieldChange("benefitClass", value)}>
@@ -64,7 +64,7 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Payment Type <span className="text-red-500">*</span>
             </label>
             <Select
@@ -87,7 +87,7 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Plan Number <span className="text-red-500">*</span>
             </label>
             <Select
@@ -99,13 +99,13 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
                 <SelectValue placeholder="Select plan number" />
               </SelectTrigger>
               <SelectContent className="max-h-[400px] overflow-y-auto" position="popper" sideOffset={4}>
-                <div className="p-2 border-b border-gray-200 sticky top-0 bg-white z-10">
+                <div className="p-2 border-b border-border sticky top-0 bg-card z-10">
                   <input
                     type="text"
                     placeholder="Search plan numbers..."
                     value={planNumberSearch}
                     onChange={(e) => onPlanNumberSearchChange(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent bg-input text-foreground"
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => e.stopPropagation()}
                     onFocus={(e) => e.stopPropagation()}
@@ -119,16 +119,16 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
                     <SelectItem
                       key={pt.id}
                       value={pt.id}
-                      className="px-4 py-3 text-sm hover:bg-gray-50 cursor-pointer focus:bg-blue-50 focus:outline-none"
+                      className="px-4 py-3 text-sm hover:bg-accent cursor-pointer focus:bg-accent focus:outline-none"
                     >
                       <div className="flex flex-col">
                         <span className="font-medium">{pt.value}</span>
-                        {pt.description && <span className="text-xs text-gray-500 mt-1">{pt.description}</span>}
+                        {pt.description && <span className="text-xs text-muted-foreground mt-1">{pt.description}</span>}
                       </div>
                     </SelectItem>
                   ))}
                   {filteredPlanNumbers.length === 0 && (
-                    <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                    <div className="px-4 py-3 text-sm text-muted-foreground text-center">
                       {planNumberSearch ? "No plan numbers found matching your search" : "No plan numbers available"}
                     </div>
                   )}
@@ -142,7 +142,7 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
         {shouldShowDateJoinedFund && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-medium text-foreground">
                 Date Joined Fund <span className="text-red-500">*</span>
               </label>
               <Popover>
@@ -151,7 +151,7 @@ const BenefitClassSection: React.FC<BenefitClassSectionProps> = ({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !formData.dateJoinedFund && "text-gray-500",
+                      !formData.dateJoinedFund && "text-muted-foreground",
                       validationErrors.dateJoinedFund && "border-red-500",
                     )}
                   >

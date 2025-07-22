@@ -24,14 +24,14 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
   memberAge,
 }) => {
   return (
-    <Card className="mx-6 mb-6 rounded-lg border border-gray-200">
+    <Card className="mx-6 mb-6 rounded-lg border border-border">
       <CardHeader className="pb-2">
-        <CardTitle className="text-md font-medium">General / Personal Details</CardTitle>
+        <CardTitle className="text-md font-medium text-card-foreground">General / Personal Details</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               First Name <span className="text-red-500">*</span>
             </label>
             <Input
@@ -45,7 +45,7 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Last Name <span className="text-red-500">*</span>
             </label>
             <Input
@@ -59,7 +59,7 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Member Id <span className="text-red-500">*</span>
             </label>
             <Input
@@ -75,7 +75,7 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Date Of Birth <span className="text-red-500">*</span>
             </label>
             <DateInputComponent
@@ -89,7 +89,7 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Effective Date <span className="text-red-500">*</span>
             </label>
             <DateInputComponent
@@ -103,7 +103,7 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-foreground">
               Calculation Date <span className="text-red-500">*</span>
             </label>
             <DateInputComponent
@@ -120,8 +120,8 @@ const PersonalDetailsSection: React.FC<PersonalDetailsSectionProps> = ({
         </div>
 
         {memberAge > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-md">
-            <p className="text-sm text-blue-700">
+          <div className="mt-4 p-3 bg-accent/20 rounded-md">
+            <p className="text-sm text-accent-foreground">
               Member&#39;s age at effective date: <span className="font-semibold">{memberAge} years</span>
             </p>
           </div>

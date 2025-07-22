@@ -4,7 +4,7 @@ import { Calculator, BarChart3,  ArrowRight, CheckCircle } from 'lucide-react';
 export default function Home() {
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-background flex">
       
 
       {/* Main Content */}
@@ -14,22 +14,22 @@ export default function Home() {
         <main className="flex-1 p-6">
           {/* Welcome Section */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">Financial Dashboard</h2>
-            <p className="text-slate-600">Comprehensive benefit calculations and bulk processing tools</p>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Financial Dashboard</h2>
+            <p className="text-muted-foreground">Comprehensive benefit calculations and bulk processing tools</p>
           </div>
 
           {/* Main Action Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Benefit Calculate Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6">
+            <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow">
+              <div className="bg-gradient-to-r from-primary to-primary-foreground p-6">
                 <div className="flex items-center space-x-3">
                   <div className="bg-white/20 p-3 rounded-lg">
                     <Calculator className="h-6 w-6 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-white">Benefit Calculator</h3>
-                    <p className="text-slate-300 text-sm">Individual benefit calculations</p>
+                    <p className="text-accent text-sm">Individual benefit calculations</p>
                   </div>
                 </div>
               </div>
@@ -37,17 +37,17 @@ export default function Home() {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-slate-700 text-sm">Real-time calculations</span>
+                    <span className="text-card-foreground text-sm">Real-time calculations</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-slate-700 text-sm">Detailed reporting</span>
+                    <span className="text-card-foreground text-sm">Detailed reporting</span>
                   </div>
                 </div>
                 <div className="mt-6">
                   <a 
                     href="/benefitCalculate" 
-                    className="inline-flex items-center justify-center w-full px-4 py-2 bg-slate-700 text-white font-medium rounded-md hover:bg-slate-800 transition-colors"
+                    className="inline-flex items-center justify-center w-full px-4 py-2 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary/90 transition-colors"
                   >
                     Start Calculation
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -57,15 +57,15 @@ export default function Home() {
             </div>
 
             {/* Bulk Calculate Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
-              <div className="bg-gradient-to-r from-slate-500 to-slate-600 p-6">
+            <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden hover:shadow-md transition-shadow">
+              <div className="bg-gradient-to-r from-secondary to-secondary/80 p-6">
                 <div className="flex items-center space-x-3">
                   <div className="bg-white/20 p-3 rounded-lg">
                     <BarChart3 className="h-6 w-6 text-white" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-white">Bulk Calculator</h3>
-                    <p className="text-slate-300 text-sm">Process multiple calculations</p>
+                    <p className="text-accent text-sm">Process multiple calculations</p>
                   </div>
                 </div>
               </div>
@@ -73,17 +73,17 @@ export default function Home() {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-slate-700 text-sm">Batch processing</span>
+                    <span className="text-card-foreground text-sm">Batch processing</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
-                    <span className="text-slate-700 text-sm">CSV import/export</span>
+                    <span className="text-card-foreground text-sm">CSV import/export</span>
                   </div>
                 </div>
                 <div className="mt-6">
                   <a 
                     href="/bulkCalculate" 
-                    className="inline-flex items-center justify-center w-full px-4 py-2 bg-slate-600 text-white font-medium rounded-md hover:bg-slate-700 transition-colors"
+                    className="inline-flex items-center justify-center w-full px-4 py-2 bg-secondary text-secondary-foreground font-medium rounded-md hover:bg-secondary/90 transition-colors"
                   >
                     Start Bulk Processing
                     <ArrowRight className="ml-2 h-4 w-4" />

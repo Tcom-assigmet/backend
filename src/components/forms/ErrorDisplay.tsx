@@ -12,7 +12,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error, onRetry }) =>
         </svg>
       </div>
       <p className="text-lg font-medium mb-2">Something went wrong</p>
-      <p className="text-sm text-gray-600 mb-4">{error}</p>
+              <p className="text-sm text-muted-foreground mb-4">{error}</p>
       <button 
         onClick={onRetry}
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
