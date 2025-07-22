@@ -1,6 +1,6 @@
-import { API_ENDPOINTS } from "@/config/api";
-import { ApiResponse, BenefitCalculationResult, FormSubmissionData } from "@/types/api";
-import { BaseApiService, isApiError, isBenefitCalculationResult } from "@/services/baseAPIService";
+import { API_ENDPOINTS } from "@/src/configs/api";
+import { ApiResponse, BenefitCalculationResult, FormSubmissionData } from "@/src/types/api";
+import { BaseApiService, isApiError, isBenefitCalculationResult } from "@/src/utils/baseAPIService";
 
 export class BenefitCalculatorCompleteService extends BaseApiService {
   constructor() {

@@ -1,6 +1,6 @@
-import { API_ENDPOINTS } from "@/config/api";
-import { BenefitCalculatorRequest, BenefitCalculatorResponse } from "@/types/api";
-import { BaseApiService } from "@/services/baseAPIService";
+import { API_ENDPOINTS } from "@/src/configs/api";
+import { BenefitCalculatorRequest, BenefitCalculatorResponse } from "@/src/types/api";
+import { BaseApiService } from "@/src/utils/baseAPIService";
 
 export class BenefitCalculatorStartService extends BaseApiService {
   constructor() {

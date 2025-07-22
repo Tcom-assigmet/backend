@@ -3,7 +3,7 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from "lucide-react"
 import { DayPicker } from "react-day-picker"
-import { cn } from "@/lib/utils"
+import { cn } from "@/src/lib/utils"
 import { Locale } from "date-fns"; 
 
 interface CalendarProps {

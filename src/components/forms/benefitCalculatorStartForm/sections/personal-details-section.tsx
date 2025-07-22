@@ -1,10 +1,10 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import DateInputComponent from "@/components/ui/DateInputComponent"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { FormData, ValidationErrors } from "@/types/benefitcalculator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import DateInputComponent from "@/src/components/ui/DateInputComponent"
+import { Input } from "@/src/components/ui/input"
+import { cn } from "@/src/lib/utils"
+import { FormData, ValidationErrors } from "@/src/types/benefitcalculator"
 import type React from "react"
 
 

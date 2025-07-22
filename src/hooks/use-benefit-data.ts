@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 
-import { useStore } from "@/store/useStore"
+import { useStore } from "@/src/store/useStore"
 import { CalculationFactor, MemberData, StoreState, SubProcessData } from "../types/benefitcalculator"
 
 export const useBenefitData = () => {

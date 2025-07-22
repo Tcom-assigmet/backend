@@ -1,4 +1,4 @@
-import { DataType, FormValue, ProcessedFormData, RequiredField } from "@/types/benefitcalculator";
+import { DataType, FormValue, ProcessedFormData, RequiredField } from "@/src/types/benefitcalculator";
 import { FormSubmissionData } from "../types/api";
 
 export class FormDataProcessor {

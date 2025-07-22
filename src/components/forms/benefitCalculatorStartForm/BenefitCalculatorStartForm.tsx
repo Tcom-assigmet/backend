@@ -2,12 +2,12 @@
 import type React from "react"
 import { useState, useEffect, useCallback, useMemo } from "react"
 
-import { useStore } from "@/store/useStore"
-import { validateDate, validateDateLogic, validateMemberId, validateName } from "@/utils/validations"
-import { calculateAge, formatDateForApi } from "@/utils/uilFunctions"
-import { FormData, ValidationErrors } from "@/types/benefitcalculator"
+import { useStore } from "@/src/store/useStore"
+import { validateDate, validateDateLogic, validateMemberId, validateName } from "@/src/utils/validations"
+import { calculateAge, formatDateForApi } from "@/src/utils/uilFunctions"
+import { FormData, ValidationErrors } from "@/src/types/benefitcalculator"
 import { BenefitCalculatorStartService } from "./services/benefit-calculator-service"
-import { BENEFIT_CLASSES, PAYMENT_TYPES, PLAN_BENEFIT_MAPPING, PLAN_NUMBERS } from "@/config/benefitCalculatorConfigs"
+import { BENEFIT_CLASSES, PAYMENT_TYPES, PLAN_BENEFIT_MAPPING, PLAN_NUMBERS } from "../../../configs/benefitCalculatorConfigs"
 import { Alert, AlertDescription } from "../../ui/alert"
 import PersonalDetailsSection from "./sections/personal-details-section"
 import BenefitClassSection from "./sections/benefit-class-section"
@@ -21,31 +21,17 @@ interface BenefitCalculatorFormProps {
 
 const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, onNext }) => {
   const {
-    setTaskInitiated: setBenefitCalculatorTaskInitiated,
-    setProcessInstanceId: setBenefitCalculatorProcessInstanceId,
-    setRequiredFields: setBenefitCalRequiredFilelds,
-    formData: benefitCalculatorFormData,
-    setFormData: setBenefitCalculatorFormData,
-    taskInitiated: benefitCalculatorTaskInitiated,
-    processInstanceId: benefitCalculatorProcessInstanceId,
+    setBenefitCalculatorTaskInitiated,
+    setBenefitCalculatorProcessInstanceId,
+    setBenefitCalRequiredFilelds,
+    benefitCalculatorFormData,
+    setBenefitCalculatorFormData,
+    benefitCalculatorTaskInitiated,
+    benefitCalculatorProcessInstanceId,
   } = useStore()
 
-  // Initialize form data with fallback to prevent undefined errors
-  const initialFormData = benefitCalculatorFormData || {
-    firstName: '',
-    lastName: '',
-    memberId: '',
-    dateOfBirth: null,
-    dateJoinedFund: null,
-    effectiveDate: null,
-    calculationDate: null,
-    benefitClass: '',
-    paymentType: '',
-    planNumber: '',
-  }
-
   // State
-  const [formData, setFormData] = useState<FormData>(initialFormData)
+  const [formData, setFormData] = useState<FormData>(benefitCalculatorFormData)
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [touchedFields, setTouchedFields] = useState<Set<keyof FormData>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -59,14 +45,14 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
   const isProcessStarted = benefitCalculatorTaskInitiated && benefitCalculatorProcessInstanceId
 
   const filteredPaymentTypes = useMemo(() => {
-    if (!formData?.benefitClass) return []
+    if (!formData.benefitClass) return []
     return PAYMENT_TYPES.filter((paymentType) =>
       paymentType.benefitClasses.some((bc) => bc.id === formData.benefitClass),
     )
-  }, [formData?.benefitClass])
+  }, [formData.benefitClass])
 
   const filteredPlanNumbers = useMemo(() => {
-    if (!formData?.benefitClass) return []
+    if (!formData.benefitClass) return []
 
     const matchingPlanNumbers = PLAN_BENEFIT_MAPPING.filter(
       (mapping) => mapping.benefitClass === formData.benefitClass,
@@ -85,7 +71,7 @@ const BenefitCalculatorForm: React.FC<BenefitCalculatorFormProps> = ({ onClose, 
     }
 
     return planNumbers
-  }, [formData?.benefitClass, planNumberSearch])
+  }, [formData.benefitClass, planNumberSearch])
 
   const shouldShowDateJoinedFund = useMemo(() => {
     return false // Always hide Date Joined Fund for now

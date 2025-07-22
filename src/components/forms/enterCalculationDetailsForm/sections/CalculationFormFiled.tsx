@@ -1,5 +1,5 @@
-import { INPUT_STYLES } from "@/config/benefitCalculatorConfigs";
-import { BenefitCalculationDetailFormFieldProps, FormValue } from "@/types/benefitcalculator";
+import { INPUT_STYLES } from "../../../../configs/benefitCalculatorConfigs";
+import { BenefitCalculationDetailFormFieldProps, FormValue } from "../../../../types/benefitcalculator";
 
 export const EnterCalculationDetailFormField: React.FC<BenefitCalculationDetailFormFieldProps> = ({ field, value, error, touched, onChange, onBlur }) => {
   const handleChange = (newValue: FormValue) => {

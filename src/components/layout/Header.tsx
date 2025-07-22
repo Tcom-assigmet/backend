@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Search, Bell, ChevronDown } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/src/components/ui/avatar';
+import { Input } from '@/src/components/ui/input';
 
 interface HeaderProps {
   className?: string;

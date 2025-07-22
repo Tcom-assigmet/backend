@@ -1,5 +1,5 @@
 
-import { useStore } from "@/store/useStore";
+import { useStore } from "@/src/store/useStore";
 import { useEffect, useState } from "react";
 type Step = 'home' | 'standard' | 'bulk' | 'details' | 'results';
 export const useBenefitCalculatorNavigation = () => {

@@ -5,8 +5,8 @@ import { pdf } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 
 import BenefitPdfDocument from "../BenefitPdfDocument";
-import { getCurrentDate } from "@/utils/formatters";
-import { CalculationFactor, MemberData, SubProcessData } from "@/types/benefitcalculator";
+import { getCurrentDate } from "@/src/utils/formatters";
+import { CalculationFactor, MemberData, SubProcessData } from "@/src/types/benefitcalculator";
 
 interface DownloadPDFProps {
   memberData: MemberData;
