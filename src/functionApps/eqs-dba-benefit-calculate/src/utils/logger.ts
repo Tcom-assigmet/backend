@@ -1,5 +1,13 @@
 import { CONFIG } from '../config/constants';
 import { logger } from './custom-logger';
+import { 
+  Constructor, 
+  LogData, 
+  LogValue, 
+  ProcessStepData, 
+  ErrorWithMessage,
+  AsyncMethod
+} from '../models/types';
 
 interface AutoLogConfig {
   enabled?: boolean; 
@@ -10,6 +18,7 @@ interface AutoLogConfig {
   processIdKey?: string;
   logPrefix?: string;
 }
+
 interface ProcessInfo {
   id: string;
   operation: string;
@@ -24,7 +33,7 @@ interface ProcessStep {
   method: string;
   stepType: 'START' | 'END' | 'ERROR';
   timestamp: number;
-  data?: any;
+  data?: ProcessStepData;
 }
 
 const defaultConfig: AutoLogConfig = {
@@ -36,8 +45,6 @@ const defaultConfig: AutoLogConfig = {
   processIdKey: 'processId',
   logPrefix: 'AutoLog'
 };
-
-
 
 class ProcessContext {
   private static contexts = new Map<string, ProcessInfo>();
@@ -52,7 +59,7 @@ class ProcessContext {
     });
   }
   
-  static addStep(processId: string, method: string, stepType: 'START' | 'END' | 'ERROR', data?: any): void {
+  static addStep(processId: string, method: string, stepType: 'START' | 'END' | 'ERROR', data?: ProcessStepData): void {
     const context = this.contexts.get(processId);
     if (context) {
       context.steps.push({
@@ -80,7 +87,7 @@ class ProcessContext {
   }
 }
 
-export function AutoLog<T extends { new (...args: any[]): {} }>(
+export function AutoLog<T extends Constructor>(
   configOrTarget?: AutoLogConfig | T,
 ): any {
   if (typeof configOrTarget === 'function') {
@@ -91,13 +98,13 @@ export function AutoLog<T extends { new (...args: any[]): {} }>(
   }
 }
 
-function applyAutoLog<T extends { new (...args: any[]): {} }>(
+function applyAutoLog<T extends Constructor>(
   constructor: T,
   config: AutoLogConfig
 ): T {
   const className = constructor.name;
   
-  return class extends constructor {
+  class LoggedClass extends (constructor as any) {
     constructor(...args: any[]) {
       super(...args);
       
@@ -112,10 +119,10 @@ function applyAutoLog<T extends { new (...args: any[]): {} }>(
           return;
         }
         
-        const originalMethod = (this as any)[methodName];
+        const originalMethod = (this as Record<string, unknown>)[methodName];
         if (typeof originalMethod === 'function') {
-          (this as any)[methodName] = createLoggedMethod(
-            originalMethod,
+          (this as Record<string, unknown>)[methodName] = createLoggedMethod(
+            originalMethod as AsyncMethod,
             methodName,
             className,
             config
@@ -123,16 +130,18 @@ function applyAutoLog<T extends { new (...args: any[]): {} }>(
         }
       });
     }
-  } as T;
+  }
+  
+  return LoggedClass as T;
 }
 
 function createLoggedMethod(
-  originalMethod: Function,
+  originalMethod: AsyncMethod,
   methodName: string,
   className: string,
   config: AutoLogConfig
-) {
-  return async function(this: any, ...args: any[]) {
+): AsyncMethod {
+  return async function(this: Record<string, unknown>, ...args: unknown[]): Promise<unknown> {
     if (!config.enabled) {
       return await originalMethod.apply(this, args);
     }
@@ -146,7 +155,7 @@ function createLoggedMethod(
     }
     
     const startTime = Date.now();
-    const logData = {
+    const logData: LogData = {
       processId,
       className,
       method: methodName,
@@ -155,22 +164,29 @@ function createLoggedMethod(
       })
     };
     
-    logger[config.logLevel!.toLowerCase()](`${config.logPrefix} - ${className}.${methodName} START`, logData);
-    ProcessContext.addStep(processId, methodName, 'START', logData);
+    const logLevel = config.logLevel!.toLowerCase() as 'debug' | 'info' | 'warn' | 'error';
+    logger[logLevel](
+      `${config.logPrefix} - ${className}.${methodName} START`, 
+      logData
+    );
+    ProcessContext.addStep(processId, methodName, 'START', logData as ProcessStepData);
     
     try {
       const result = await originalMethod.apply(this, args);
       const duration = Date.now() - startTime;
       
-      const endLogData = {
+      const endLogData: LogData = {
         processId,
         className,
         method: methodName,
         duration: `${duration}ms`
       };
       
-      logger[config.logLevel!.toLowerCase()](`${config.logPrefix} - ${className}.${methodName} END`, endLogData);
-      ProcessContext.addStep(processId, methodName, 'END', endLogData);
+      logger[logLevel](
+        `${config.logPrefix} - ${className}.${methodName} END`, 
+        endLogData
+      );
+      ProcessContext.addStep(processId, methodName, 'END', endLogData as ProcessStepData);
       
       if (isProcessEnd) {
         const processInfo = ProcessContext.complete(processId);
@@ -190,21 +206,22 @@ function createLoggedMethod(
       }
       
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorObj = error as ErrorWithMessage;
       const duration = Date.now() - startTime;
-      const errorLogData = {
+      const errorLogData: LogData = {
         processId,
         className,
         method: methodName,
         duration: `${duration}ms`,
         error: {
-          message: error.message,
-          stack: error.stack
+          message: errorObj.message || 'Unknown error',
+          stack: errorObj.stack
         }
       };
       
       logger.error(`${config.logPrefix} - ${className}.${methodName} ERROR`, errorLogData);
-      ProcessContext.addStep(processId, methodName, 'ERROR', errorLogData);
+      ProcessContext.addStep(processId, methodName, 'ERROR', errorLogData as ProcessStepData);
       
       if (isProcessStart || isProcessEnd) {
         const processInfo = ProcessContext.complete(processId);
@@ -214,7 +231,7 @@ function createLoggedMethod(
             operation: processInfo.operation,
             totalDuration: `${processInfo.duration}ms`,
             stepsCount: processInfo.steps.length,
-            error: error.message
+            error: errorObj.message || 'Unknown error'
           });
         }
       }
@@ -224,14 +241,15 @@ function createLoggedMethod(
   };
 }
 
-function extractOrGenerateProcessId(args: any[], processIdKey: string): string {
+function extractOrGenerateProcessId(args: unknown[], processIdKey: string): string {
   for (const arg of args) {
     if (arg && typeof arg === 'object') {
-      if (arg.memberId) return arg.memberId;
-      if (arg.processInstanceId) return arg.processInstanceId;
-      if (arg[processIdKey]) return arg[processIdKey];
-      if (arg.taskId) return arg.taskId;
-      if (arg.id) return arg.id;
+      const obj = arg as Record<string, unknown>;
+      if (typeof obj.memberId === 'string') return obj.memberId;
+      if (typeof obj.processInstanceId === 'string') return obj.processInstanceId;
+      if (typeof obj[processIdKey] === 'string') return obj[processIdKey] as string;
+      if (typeof obj.taskId === 'string') return obj.taskId;
+      if (typeof obj.id === 'string') return obj.id;
     }
   }
   
@@ -242,7 +260,7 @@ function extractOrGenerateProcessId(args: any[], processIdKey: string): string {
   return `process-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-function getAllMethodNames(prototype: any): string[] {
+function getAllMethodNames(prototype: object): string[] {
   const methods: string[] = [];
   let current = prototype;
   
@@ -250,18 +268,18 @@ function getAllMethodNames(prototype: any): string[] {
     const names = Object.getOwnPropertyNames(current);
     names.forEach(name => {
       if (name !== 'constructor' && 
-          typeof current[name] === 'function' && 
+          typeof (current as Record<string, unknown>)[name] === 'function' && 
           !methods.includes(name)) {
         methods.push(name);
       }
     });
-    current = Object.getPrototypeOf(current);
+    current = Object.getPrototypeOf(current) as object;
   }
   
   return methods;
 }
 
-function sanitizeLogData(data: any): any {
+function sanitizeLogData(data: unknown): LogValue {
   if (data === null || data === undefined) {
     return data;
   }
@@ -270,12 +288,16 @@ function sanitizeLogData(data: any): any {
     return data;
   }
   
+  if (data instanceof Date) {
+    return data;
+  }
+  
   if (Array.isArray(data)) {
     return data.map(item => sanitizeLogData(item));
   }
   
   if (typeof data === 'object') {
-    const sanitized: any = {};
+    const sanitized: { [key: string]: LogValue } = {};
     for (const [key, value] of Object.entries(data)) {
       if (typeof value !== 'function') {
         sanitized[key] = sanitizeLogData(value);

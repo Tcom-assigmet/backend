@@ -1,14 +1,17 @@
 const originalLogger = require('@novigi/logger');
+import { LogData } from '../models/types';
 
-interface LogData {
-  [key: string]: any;
+interface LoggerMethods {
+  setLevel?(level: string): void;
+  setColors?(enabled: boolean): void;
+  [key: string]: unknown;
 }
 
 class CustomLogger {
-  private logger: any;
+  private logger: LoggerMethods;
 
   constructor() {
-    this.logger = originalLogger;
+    this.logger = originalLogger as LoggerMethods;
   }
 
   private formatMessage(level: string, message: string, data?: LogData): void {
