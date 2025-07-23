@@ -23,4 +23,18 @@ export default defineConfig([
     languageOptions: { globals: globals.browser }
   },
   ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{ts,mts,cts}"],
+    rules: {
+      // Enhanced TypeScript-specific rules for better type safety
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": "error",
+      "@typescript-eslint/explicit-function-return-type": "warn",
+      "@typescript-eslint/no-implicit-any": "error",
+      "@typescript-eslint/strict-boolean-expressions": "warn",
+      "@typescript-eslint/prefer-nullish-coalescing": "error",
+      "@typescript-eslint/prefer-optional-chain": "error",
+      "@typescript-eslint/no-non-null-assertion": "warn"
+    }
+  }
 ]);

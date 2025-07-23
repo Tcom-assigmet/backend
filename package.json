@@ -82,7 +82,12 @@
     "yocto-queue": "^0.1.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .js,.ts,.mjs,.cjs,.mts,.cts",
+    "lint:fix": "eslint . --ext .js,.ts,.mjs,.cjs,.mts,.cts --fix",
+    "type-check": "tsc --noEmit",
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "repository": {
     "type": "git",
