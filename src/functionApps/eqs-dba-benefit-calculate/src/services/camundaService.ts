@@ -1,14 +1,28 @@
 const api = require('@novigi/api');
 import { CONFIG } from '../config/constants';
-import { StartProcessRequest, RequiredField } from '../models/types';
+import { 
+    StartProcessRequest, 
+    RequiredField, 
+    CamundaClient,
+    CamundaResponse,
+    CamundaResponseBody,
+    CamundaTask,
+    CamundaVariable,
+    CamundaVariables,
+    ProcessVariableInstance,
+    HistoricProcessInstance,
+    ErrorWithMessage,
+    ApiClientFactory
+} from '../models/types';
 import { AutoLog } from '../utils/logger';
 
 @AutoLog
 export class CamundaService {
-    private client: any;
+    private client: CamundaClient;
 
     constructor() {
-        this.client = api(CONFIG.CAMUNDA_BASE_URL);
+        const apiFactory = api as ApiClientFactory;
+        this.client = apiFactory(CONFIG.CAMUNDA_BASE_URL);
     }
   
     /**
@@ -17,7 +31,7 @@ export class CamundaService {
     async startProcess(request: StartProcessRequest): Promise<string> {
         const path = `/process-definition/key/${CONFIG.PROCESS_DEFINITION_KEY}/start`;
 
-        const variables = {
+        const variables: CamundaVariables = {
             firstName: { value: request.firstName, type: 'String' },
             lastName: { value: request.lastName, type: 'String' },
             memberId: { value: request.memberId, type: 'String' },
@@ -32,21 +46,24 @@ export class CamundaService {
         };
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .header('Content-Type', 'application/json')
                 .post(path)
                 .body({ variables })
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            const body: CamundaResponseBody = typeof response.body === 'string' 
+                ? JSON.parse(response.body) 
+                : response.body as CamundaResponseBody;
 
             if (body && body.id) {
                 return body.id;
             }
 
             throw new Error('Failed to get process instance ID from response');
-        } catch (error: any) {
-            throw new Error(`Failed to start process: ${error.message}`);
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
+            throw new Error(`Failed to start process: ${errorObj.message}`);
         }
     }
 
@@ -57,40 +74,50 @@ export class CamundaService {
         const path = `/task?processInstanceId=${processInstanceId}`;
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            const body = typeof response.body === 'string' 
+                ? JSON.parse(response.body) 
+                : response.body;
 
             if (Array.isArray(body) && body.length > 0) {
-                return body[0].id;
+                const tasks = body as CamundaTask[];
+                return tasks[0].id;
             }
 
             throw new Error(`No tasks found for process instance: ${processInstanceId}`);
-        } catch (error: any) {
-            throw new Error(`Failed to get task ID: ${error.message}`);
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
+            throw new Error(`Failed to get task ID: ${errorObj.message}`);
         }
     }
 
     /**
      * Gets required fields for a task from form variables
      */
-    async getRequiredFields(taskId: string,processInstanceId:string): Promise<RequiredField[]> {
+    async getRequiredFields(taskId: string, processInstanceId: string): Promise<RequiredField[]> {
         const path = `/task/${taskId}/form-variables`;
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            const body = typeof response.body === 'string' 
+                ? JSON.parse(response.body) 
+                : response.body;
 
-            if (body?.requiredFields?.value) {
-                return JSON.parse(body.requiredFields.value);
+            if (body && typeof body === 'object' && 'requiredFields' in body) {
+                const formBody = body as { requiredFields?: { value?: string } };
+                if (formBody.requiredFields?.value) {
+                    return JSON.parse(formBody.requiredFields.value) as RequiredField[];
+                }
             }
-        } catch (error) {
-            throw new Error(`Failed to get required fields for process ${processInstanceId} : ${error.message}`);
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
+            throw new Error(`Failed to get required fields for process ${processInstanceId} : ${errorObj.message}`);
         }
 
         return [];
@@ -99,26 +126,25 @@ export class CamundaService {
     /**
      * Completes a task with provided variables
      */
-    async completeTaskWithVariables(taskId: string, variables: Record<string, any>): Promise<void> {
+    async completeTaskWithVariables(taskId: string, variables: Record<string, unknown>): Promise<void> {
         const path = `/task/${taskId}/complete`;
 
-        const camundaVariables: Record<string, any> = {};
+        const camundaVariables: CamundaVariables = {};
 
         // Convert variables to Camunda format with type inference
         for (const [key, value] of Object.entries(variables)) {
             if (typeof value === 'object' && value !== null && 'value' in value && 'type' in value) {
-                camundaVariables[key] = value;
+                camundaVariables[key] = value as CamundaVariable;
                 continue;
             }
 
-            let type = 'String';
+            let type: CamundaVariable['type'] = 'String';
             if (typeof value === 'number') type = 'Double';
             else if (typeof value === 'boolean') type = 'Boolean';
             else if (typeof value === 'string' && /\d{4}-\d{2}-\d{2}.*/.test(value)) type = 'Date';
 
-            camundaVariables[key] = { value, type };
+            camundaVariables[key] = { value: value as string | number | boolean | Date, type };
         }
-
 
         try {
             await this.client
@@ -126,15 +152,16 @@ export class CamundaService {
                 .post(path)
                 .body({ variables: camundaVariables })
                 .response();
-        } catch (error: any) {
-            throw new Error(`Failed to complete task: ${error.message}`);
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
+            throw new Error(`Failed to complete task: ${errorObj.message}`);
         }
     }
 
     /**
      * Completes a task with raw request body
      */
-    async completeTaskDirect(taskId: string, requestBody: any): Promise<void> {
+    async completeTaskDirect(taskId: string, requestBody: Record<string, unknown>): Promise<void> {
         const path = `/task/${taskId}/complete`;
 
         try {
@@ -143,38 +170,46 @@ export class CamundaService {
                 .post(path)
                 .body(requestBody)
                 .response();
-        } catch (error: any) {
-            throw new Error(`Failed to complete task: ${error.message}`);
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
+            throw new Error(`Failed to complete task: ${errorObj.message}`);
         }
     }
 
     /**
      * Retrieves all variables for a process instance
      */
-    async getProcessVariables(processInstanceId: string): Promise<Record<string, any>> {
+    async getProcessVariables(processInstanceId: string): Promise<Record<string, string | number | boolean>> {
         const path = `/variable-instance?processInstanceIdIn=${processInstanceId}`;
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            const body = typeof response.body === 'string' 
+                ? JSON.parse(response.body) 
+                : response.body;
 
-            const variables: Record<string, any> = {};
-            for (const variable of body) {
-                const name = variable.name;
-                // Stringify objects, keep primitives as-is
-                const value = typeof variable.value === 'object' && variable.value !== null
-                    ? JSON.stringify(variable.value)
-                    : variable.value;
+            const variables: Record<string, string | number | boolean> = {};
+            
+            if (Array.isArray(body)) {
+                const variableInstances = body as ProcessVariableInstance[];
+                for (const variable of variableInstances) {
+                    const name = variable.name;
+                    // Stringify objects, keep primitives as-is
+                    const value = typeof variable.value === 'object' && variable.value !== null
+                        ? JSON.stringify(variable.value)
+                        : variable.value as string | number | boolean;
 
-                variables[name] = value;
+                    variables[name] = value;
+                }
             }
 
             return variables;
-        } catch (error: any) {
-            throw new Error(`Failed to get process variables: ${error.message}`);
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
+            throw new Error(`Failed to get process variables: ${errorObj.message}`);
         }
     }
 
@@ -185,18 +220,21 @@ export class CamundaService {
         const path = `/process-instance?superProcessInstance=${superProcessInstanceId}`;
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            const body = typeof response.body === 'string' 
+                ? JSON.parse(response.body) 
+                : response.body;
 
             if (Array.isArray(body) && body.length > 0) {
-                return body[0].id;
+                const processes = body as { id: string }[];
+                return processes[0].id;
             }
 
             return null;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return null;
         }
     }
@@ -208,15 +246,16 @@ export class CamundaService {
         const path = `/process-instance/${processInstanceId}`;
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            // If we get a response, the process is still active
             return false;
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errorObj = error as ErrorWithMessage;
             // 404 means process is completed (no longer active)
-            if (error.message.includes('404') || error.message.includes('Not Found')) {
+            if (errorObj.message.includes('404') || errorObj.message.includes('Not Found')) {
                 return true;
             }
             
@@ -231,15 +270,18 @@ export class CamundaService {
         const path = `/history/process-instance/${processInstanceId}`;
 
         try {
-            const response = await this.client
+            const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
 
-            const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
+            const body = typeof response.body === 'string' 
+                ? JSON.parse(response.body) 
+                : response.body;
 
+            const historicProcess = body as HistoricProcessInstance;
             // Process is completed if it has an end time
-            return body && body.endTime !== null;
-        } catch (error: any) {
+            return historicProcess && historicProcess.endTime !== null;
+        } catch (error: unknown) {
             return false;
         }
     }
