@@ -25,7 +25,7 @@ export async function getFinalResults(
 
     context.log('Final results retrieved successfully:', {
       processInstanceId: result.processInstanceId,
-      success: result.success
+      taskId: result.taskId
     });
 
     return responseBuilder.success(request, result);
