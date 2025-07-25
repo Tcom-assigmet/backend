@@ -180,7 +180,11 @@ export class CamundaService {
     /**
      * Retrieves all variables for a process instance
      */
+<<<<<<< HEAD
     async getProcessVariables(processInstanceId: string): Promise<Record<string, string>> {
+=======
+    async getProcessVariables(processInstanceId: string): Promise<Record<string, string | number | boolean>> {
+>>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
         const path = `/variable-instance?processInstanceIdIn=${processInstanceId}`;
 
         try {
@@ -192,7 +196,11 @@ export class CamundaService {
                 ? JSON.parse(response.body) 
                 : response.body;
 
+<<<<<<< HEAD
             const variables: Record<string, string> = {};
+=======
+            const variables: Record<string, string | number | boolean> = {};
+>>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
             
             if (Array.isArray(body)) {
                 const variableInstances = body as ProcessVariableInstance[];
@@ -201,7 +209,11 @@ export class CamundaService {
                     // Stringify objects, keep primitives as-is
                     const value = typeof variable.value === 'object' && variable.value !== null
                         ? JSON.stringify(variable.value)
+<<<<<<< HEAD
                         : variable.value as string ;
+=======
+                        : variable.value as string | number | boolean;
+>>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
 
                     variables[name] = value;
                 }
@@ -236,8 +248,11 @@ export class CamundaService {
 
             return null;
         } catch (error: unknown) {
+<<<<<<< HEAD
             const errorObj = error as ErrorWithMessage;
             console.error(`Failed to get subprocess instance ID: ${errorObj.message}`);
+=======
+>>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
             return null;
         }
     }
@@ -252,6 +267,7 @@ export class CamundaService {
             const response: CamundaResponse = await this.client
                 .get(path)
                 .response();
+<<<<<<< HEAD
             
             const body = typeof response.body === 'string' ? JSON.parse(response.body) : response.body;
 
@@ -263,6 +279,11 @@ export class CamundaService {
             // If we get a valid response, check if it has an end time
             const processInstance = body as HistoricProcessInstance;
             return processInstance.endTime !== null;
+=======
+
+            // If we get a response, the process is still active
+            return false;
+>>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
         } catch (error: unknown) {
             const errorObj = error as ErrorWithMessage;
             // 404 means process is completed (no longer active)
@@ -293,8 +314,12 @@ export class CamundaService {
             // Process is completed if it has an end time
             return historicProcess && historicProcess.endTime !== null;
         } catch (error: unknown) {
+<<<<<<< HEAD
             const errorObj = error as ErrorWithMessage;
             return errorObj.message.includes('404') || errorObj.message.includes('Not Found');
+=======
+            return false;
+>>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
         }
     }
 }
