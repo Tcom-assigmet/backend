@@ -2,7 +2,8 @@ import { HttpRequest, InvocationContext } from '@azure/functions';
 import { completeTask } from '../../functions/completeTask';
 import { BenefitCalculationService } from '../../services/benefitCalculationService';
 import { responseBuilder } from '../../utils/helpers';
-import { CompleteTaskRequest, FinalResultResponse } from '../../models/types';
+import { CompleteTaskRequest, FinalResultResponse, MemberData, SubProcessData } from '../../models/types';
+import { createMockHttpRequest, createMockInvocationContext } from '../testUtils';
 
 // Mock dependencies
 jest.mock('../../services/benefitCalculationService');
@@ -12,35 +13,21 @@ const MockedBenefitCalculationService = BenefitCalculationService as jest.Mocked
 const mockResponseBuilder = responseBuilder as jest.Mocked<typeof responseBuilder>;
 
 describe('completeTask Azure Function', () => {
-  let mockRequest: jest.Mocked<HttpRequest>;
+  let mockRequest: HttpRequest;
   let mockContext: jest.Mocked<InvocationContext>;
   let mockBenefitService: jest.Mocked<BenefitCalculationService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock HttpRequest
-    mockRequest = {
-      json: jest.fn(),
+    // Create mock HTTP request using utility
+    mockRequest = createMockHttpRequest({
       url: '/api/benefit/complete',
-      method: 'POST',
-      headers: {},
-      query: {},
-      params: {},
-      text: jest.fn(),
-      arrayBuffer: jest.fn(),
-      formData: jest.fn()
-    } as jest.Mocked<HttpRequest>;
+      method: 'POST'
+    });
 
-    // Mock InvocationContext
-    mockContext = {
-      log: jest.fn(),
-      error: jest.fn(),
-      warn: jest.fn(),
-      info: jest.fn(),
-      debug: jest.fn(),
-      trace: jest.fn()
-    } as unknown as jest.Mocked<InvocationContext>;
+    // Create mock invocation context using utility
+    mockContext = createMockInvocationContext();
 
     // Mock BenefitCalculationService instance
     mockBenefitService = new MockedBenefitCalculationService() as jest.Mocked<BenefitCalculationService>;
@@ -61,12 +48,11 @@ describe('completeTask Azure Function', () => {
   describe('successful execution', () => {
     it('should successfully complete task', async () => {
       const mockResponse: FinalResultResponse = {
+        message: 'Task completed successfully',
         processInstanceId: 'proc-123',
         taskId: 'task-456',
-        results: [
-          { name: 'monthlyBenefit', value: 2500, type: 'currency' }
-        ],
-        status: 'completed'
+        memberData: {} as MemberData,
+        subProcessData: {} as SubProcessData
       };
 
       const mockHttpResponse = {
@@ -98,10 +84,11 @@ describe('completeTask Azure Function', () => {
       };
 
       const mockResponse: FinalResultResponse = {
+        message: 'Task completed successfully',
         processInstanceId: 'proc-123',
         taskId: 'task-456',
-        results: [],
-        status: 'completed'
+        memberData: {} as MemberData,
+        subProcessData: {} as SubProcessData
       };
 
       const mockHttpResponse = {
