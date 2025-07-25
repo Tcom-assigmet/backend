@@ -12,14 +12,15 @@ export interface StartProcessRequest {
     paymentTypeDesc: string;
 }
 
-export type VariableValue = {
-  value:  string | number | boolean | Date
-  type:  string | number | boolean | Date;
-};
+export interface VariableValue {
+    value: string | number | boolean | Date;
+    type: 'String' | 'Double' | 'Boolean' | 'Date' | 'Long';
+}
 
 export interface CompleteTaskRequest {
     processInstanceId: string;
     variables: Record<string, VariableValue>;
+    [key: string]: unknown; // Index signature for flexibility
 }
 
 export interface ProcessResponse {
@@ -111,10 +112,141 @@ export interface SubProcessData {
 }
 
 export interface FinalResultResponse {
-    success: boolean;
     message: string;
     processInstanceId: string;
     taskId: string | null;
     memberData: MemberData;
     subProcessData: SubProcessData;
+}
+
+// Camunda API client types
+export interface CamundaClient {
+    header(name: string, value: string): CamundaClient;
+    get(path: string): CamundaClient;
+    post(path: string): CamundaClient;
+    body(data: unknown): CamundaClient;
+    response(): Promise<CamundaResponse>;
+}
+
+export interface CamundaResponse {
+    statusCode: number;
+    body: string | CamundaResponseBody;
+    status: number;
+}
+
+export interface CamundaResponseBody {
+    id?: string;
+    [key: string]: unknown;
+}
+
+// Process variables types
+export interface CamundaVariable {
+    value: string | number | boolean | Date | null;
+    type: 'String' | 'Double' | 'Boolean' | 'Date' | 'Long';
+}
+
+export interface CamundaVariables {
+    [key: string]: CamundaVariable;
+}
+
+// Task and process types
+export interface CamundaTask {
+    id: string;
+    name?: string;
+    processInstanceId: string;
+    [key: string]: unknown;
+}
+
+export interface CamundaProcessInstance {
+    id: string;
+    definitionId?: string;
+    businessKey?: string;
+    ended?: boolean;
+    suspended?: boolean;
+    [key: string]: unknown;
+}
+
+export interface HistoricProcessInstance {
+    id: string;
+    startTime: string;
+    endTime: string | null;
+    durationInMillis: number | null;
+    [key: string]: unknown;
+}
+
+export interface ProcessVariableInstance {
+    name: string;
+    type: string;
+    value: unknown;
+    processInstanceId: string;
+    [key: string]: unknown;
+}
+
+// Logger types
+export interface LogData {
+    [key: string]: LogValue;
+}
+
+export type LogValue = 
+    | string 
+    | number 
+    | boolean 
+    | Date 
+    | null 
+    | undefined 
+    | LogValue[] 
+    | { [key: string]: LogValue }
+    | unknown;
+
+export interface ProcessStepData {
+    processId?: string;
+    className?: string;
+    method?: string;
+    duration?: string;
+    args?: LogValue[];
+    error?: {
+        message: string;
+        stack?: string;
+    };
+    [key: string]: LogValue;
+}
+
+// Function types for method decoration
+export type AsyncMethod = (...args: unknown[]) => Promise<unknown>;
+export type SyncMethod = (...args: unknown[]) => unknown;
+export type AnyMethod = AsyncMethod | SyncMethod;
+
+// Error types
+export interface ErrorWithMessage {
+    message: string;
+    stack?: string;
+    name?: string;
+    [key: string]: unknown;
+}
+
+
+
+// API client factory function type
+export type ApiClientFactory = (baseUrl: string) => CamundaClient;
+
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: ApiError;
+  timestamp: string;
+  path: string;
+  method: string;
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: string;
+  validationErrors?: ValidationError[];
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+  code: string;
 }

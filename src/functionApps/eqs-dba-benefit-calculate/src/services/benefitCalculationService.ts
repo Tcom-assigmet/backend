@@ -39,7 +39,7 @@ export class BenefitCalculationService {
      */
     async getTaskDetails(processInstanceId: string): Promise<{ taskId: string; requiredFields: RequiredField[] }> {
         const taskId = await this.camundaService.getTaskId(processInstanceId);
-        const requiredFields = await this.camundaService.getRequiredFields(taskId,processInstanceId);
+        const requiredFields = await this.camundaService.getRequiredFields(taskId, processInstanceId);
 
         return {
             taskId,
@@ -108,7 +108,6 @@ export class BenefitCalculationService {
      */
     async getFinalResults(processInstanceId: string, taskId: string | null): Promise<FinalResultResponse> {
         const response: FinalResultResponse = {
-            success: true,
             message: 'Task completed successfully',
             processInstanceId,
             taskId,

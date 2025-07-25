@@ -10,6 +10,7 @@ interface AutoLogConfig {
   processIdKey?: string;
   logPrefix?: string;
 }
+
 interface ProcessInfo {
   id: string;
   operation: string;
@@ -24,8 +25,33 @@ interface ProcessStep {
   method: string;
   stepType: 'START' | 'END' | 'ERROR';
   timestamp: number;
-  data?: any;
+  data?: LogData;
 }
+
+// Define proper types for log data
+type LogData = 
+  | string 
+  | number 
+  | boolean 
+  | null 
+  | undefined
+  | LogData[] 
+  | { [key: string]: LogData }
+  | {
+      processId?: string;
+      className?: string;
+      method?: string;
+      duration?: string;
+      args?: LogData[];
+      error?: {
+        message: string;
+        stack?: string;
+      };
+    };
+
+// Type for constructor function that works with mixins
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Constructor<T = object> = new (...args: any[]) => T;
 
 const defaultConfig: AutoLogConfig = {
   enabled: CONFIG.ENABLE_OPERATION_LOGGING, 
@@ -36,8 +62,6 @@ const defaultConfig: AutoLogConfig = {
   processIdKey: 'processId',
   logPrefix: 'AutoLog'
 };
-
-
 
 class ProcessContext {
   private static contexts = new Map<string, ProcessInfo>();
@@ -52,7 +76,7 @@ class ProcessContext {
     });
   }
   
-  static addStep(processId: string, method: string, stepType: 'START' | 'END' | 'ERROR', data?: any): void {
+  static addStep(processId: string, method: string, stepType: 'START' | 'END' | 'ERROR', data?: LogData): void {
     const context = this.contexts.get(processId);
     if (context) {
       context.steps.push({
@@ -80,24 +104,27 @@ class ProcessContext {
   }
 }
 
-export function AutoLog<T extends { new (...args: any[]): {} }>(
-  configOrTarget?: AutoLogConfig | T,
-): any {
+// Overloaded function signatures for AutoLog
+export function AutoLog<T extends Constructor>(target: T): T;
+export function AutoLog(config: AutoLogConfig): <T extends Constructor>(target: T) => T;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function AutoLog<T extends Constructor>(configOrTarget?: AutoLogConfig | T): any {
   if (typeof configOrTarget === 'function') {
     return applyAutoLog(configOrTarget, defaultConfig);
   } else {
     const config = { ...defaultConfig, ...configOrTarget };
-    return (target: T) => applyAutoLog(target, config);
+    return <U extends Constructor>(target: U) => applyAutoLog(target, config);
   }
 }
 
-function applyAutoLog<T extends { new (...args: any[]): {} }>(
+function applyAutoLog<T extends Constructor>(
   constructor: T,
   config: AutoLogConfig
 ): T {
   const className = constructor.name;
   
   return class extends constructor {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(...args: any[]) {
       super(...args);
       
@@ -112,8 +139,10 @@ function applyAutoLog<T extends { new (...args: any[]): {} }>(
           return;
         }
         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const originalMethod = (this as any)[methodName];
         if (typeof originalMethod === 'function') {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this as any)[methodName] = createLoggedMethod(
             originalMethod,
             methodName,
@@ -127,11 +156,13 @@ function applyAutoLog<T extends { new (...args: any[]): {} }>(
 }
 
 function createLoggedMethod(
-  originalMethod: Function,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  originalMethod: (...args: any[]) => any,
   methodName: string,
   className: string,
   config: AutoLogConfig
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return async function(this: any, ...args: any[]) {
     if (!config.enabled) {
       return await originalMethod.apply(this, args);
@@ -146,30 +177,33 @@ function createLoggedMethod(
     }
     
     const startTime = Date.now();
-    const logData = {
+    const logData: LogData = {
       processId,
       className,
       method: methodName,
       ...(config.includeArgs && { 
-        args: sanitizeLogData(args) 
+        args: sanitizeLogData(args) as LogData[]
       })
     };
     
-    logger[config.logLevel!.toLowerCase()](`${config.logPrefix} - ${className}.${methodName} START`, logData);
+    const logLevel = config.logLevel!.toLowerCase() as 'debug' | 'info' | 'warn' | 'error';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (logger as any)[logLevel](`${config.logPrefix} - ${className}.${methodName} START`, logData);
     ProcessContext.addStep(processId, methodName, 'START', logData);
     
     try {
       const result = await originalMethod.apply(this, args);
       const duration = Date.now() - startTime;
       
-      const endLogData = {
+      const endLogData: LogData = {
         processId,
         className,
         method: methodName,
         duration: `${duration}ms`
       };
       
-      logger[config.logLevel!.toLowerCase()](`${config.logPrefix} - ${className}.${methodName} END`, endLogData);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (logger as any)[logLevel](`${config.logPrefix} - ${className}.${methodName} END`, endLogData);
       ProcessContext.addStep(processId, methodName, 'END', endLogData);
       
       if (isProcessEnd) {
@@ -190,16 +224,17 @@ function createLoggedMethod(
       }
       
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       const duration = Date.now() - startTime;
-      const errorLogData = {
+      const err = error as Error;
+      const errorLogData: LogData = {
         processId,
         className,
         method: methodName,
         duration: `${duration}ms`,
         error: {
-          message: error.message,
-          stack: error.stack
+          message: err.message,
+          stack: err.stack
         }
       };
       
@@ -214,7 +249,7 @@ function createLoggedMethod(
             operation: processInfo.operation,
             totalDuration: `${processInfo.duration}ms`,
             stepsCount: processInfo.steps.length,
-            error: error.message
+            error: err.message
           });
         }
       }
@@ -224,14 +259,15 @@ function createLoggedMethod(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractOrGenerateProcessId(args: any[], processIdKey: string): string {
   for (const arg of args) {
-    if (arg && typeof arg === 'object') {
-      if (arg.memberId) return arg.memberId;
-      if (arg.processInstanceId) return arg.processInstanceId;
-      if (arg[processIdKey]) return arg[processIdKey];
-      if (arg.taskId) return arg.taskId;
-      if (arg.id) return arg.id;
+    if (arg && typeof arg === 'object' && arg !== null) {
+      if (arg.memberId && typeof arg.memberId === 'string') return arg.memberId;
+      if (arg.processInstanceId && typeof arg.processInstanceId === 'string') return arg.processInstanceId;
+      if (arg[processIdKey] && typeof arg[processIdKey] === 'string') return arg[processIdKey];
+      if (arg.taskId && typeof arg.taskId === 'string') return arg.taskId;
+      if (arg.id && typeof arg.id === 'string') return arg.id;
     }
   }
   
@@ -242,6 +278,7 @@ function extractOrGenerateProcessId(args: any[], processIdKey: string): string {
   return `process-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getAllMethodNames(prototype: any): string[] {
   const methods: string[] = [];
   let current = prototype;
@@ -261,7 +298,8 @@ function getAllMethodNames(prototype: any): string[] {
   return methods;
 }
 
-function sanitizeLogData(data: any): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function sanitizeLogData(data: any): LogData {
   if (data === null || data === undefined) {
     return data;
   }
@@ -275,7 +313,7 @@ function sanitizeLogData(data: any): any {
   }
   
   if (typeof data === 'object') {
-    const sanitized: any = {};
+    const sanitized: { [key: string]: LogData } = {};
     for (const [key, value] of Object.entries(data)) {
       if (typeof value !== 'function') {
         sanitized[key] = sanitizeLogData(value);
@@ -288,4 +326,3 @@ function sanitizeLogData(data: any): any {
 }
 
 export { ProcessContext, type ProcessInfo, type ProcessStep };
-

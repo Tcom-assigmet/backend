@@ -1,11 +1,11 @@
-import { MemberData, SubProcessData } from '../models/types';
+import { MemberData, SubProcessData, } from '../models/types';
 
-export const getStringValue = (variables: Record<string, any>, key: string): string => {
+export const getStringValue = (variables: Record<string, string >, key: string): string => {
     const value = variables[key];
     return value ? value.toString() : '';
 };
 
-export const mapToMemberData = (variables: Record<string, any>): MemberData => {
+export const mapToMemberData = (variables: Record<string, string >): MemberData => {
     return {
         firstName: getStringValue(variables, 'firstName'),
     lastName: getStringValue(variables, 'lastName'),
@@ -74,7 +74,7 @@ export const mapToMemberData = (variables: Record<string, any>): MemberData => {
     };
 };
 
-export const mapToSubProcessData = (variables: Record<string, any>): SubProcessData => {
+export const mapToSubProcessData = (variables: Record<string, string>): SubProcessData => {
     return {
         pymntAmt: getStringValue(variables, 'pymntAmt'),
         minBenCheck: getStringValue(variables, 'minBenCheck'),
