@@ -1,15 +1,17 @@
 import { HttpRequest, InvocationContext } from '@azure/functions';
 import { 
   StartProcessRequest, 
-  FinalResultResponse, 
   CompleteTaskRequest, 
+  FinalResultResponse,
+  MemberData,
+  SubProcessData,
   ProcessResponse,
   RequiredField,
-  MemberData,
-  SubProcessData 
+  ApiResponse,
+  ApiError
 } from '../models/types';
 
-// Common test data
+// Test data fixtures
 export const validStartProcessRequest: StartProcessRequest = {
   firstName: 'John',
   lastName: 'Doe',
@@ -28,8 +30,7 @@ export const validCompleteTaskRequest: CompleteTaskRequest = {
   processInstanceId: 'proc-123',
   variables: {
     salary: { value: 50000, type: 'Double' },
-    yearsOfService: { value: 10, type: 'Long' },
-    department: { value: 'Engineering', type: 'String' }
+    yearsOfService: { value: 10, type: 'Long' }
   }
 };
 
@@ -109,7 +110,7 @@ export const mockSubProcessData: SubProcessData = {
 };
 
 export const mockFinalResultResponse: FinalResultResponse = {
-  message: 'Process completed successfully',
+  message: 'Task completed successfully',
   processInstanceId: 'proc-123',
   taskId: 'task-456',
   memberData: mockMemberData,
@@ -121,21 +122,18 @@ export const mockProcessResponse: ProcessResponse = {
   taskId: 'task-456',
   requiredFields: [
     { name: 'salary', type: 'number', required: true },
-    { name: 'yearsOfService', type: 'number', required: true },
-    { name: 'department', type: 'string', required: false }
+    { name: 'yearsOfService', type: 'number', required: true }
   ]
 };
 
 export const mockRequiredFields: RequiredField[] = [
-  { name: 'salary', type: 'number', required: true, label: 'Annual Salary' },
-  { name: 'yearsOfService', type: 'number', required: true, label: 'Years of Service' },
-  { name: 'department', type: 'string', required: false, label: 'Department' },
-  { name: 'bonusAmount', type: 'number', required: false, label: 'Bonus Amount' }
+  { name: 'salary', type: 'number', required: true },
+  { name: 'yearsOfService', type: 'number', required: true }
 ];
 
-// Helper function to create a complete mock HTTP request
+// Mock HTTP Request utility
 export function createTestHttpRequest(overrides: Partial<HttpRequest> = {}): HttpRequest {
-  return {
+  const mockRequest = {
     json: jest.fn(),
     text: jest.fn(),
     arrayBuffer: jest.fn(),
@@ -144,17 +142,26 @@ export function createTestHttpRequest(overrides: Partial<HttpRequest> = {}): Htt
     clone: jest.fn(),
     url: '/api/test',
     method: 'GET',
-    headers: new Headers(),
-    query: new URLSearchParams(),
+    headers: new Headers() as any,
+    query: new URLSearchParams() as any,
     params: {},
-    user: undefined,
+    user: {} as any,
     body: null,
     bodyUsed: false,
     ...overrides
-  } as HttpRequest;
+  } as unknown as HttpRequest;
+
+  // Make params writable for testing
+  Object.defineProperty(mockRequest, 'params', {
+    value: overrides.params || {},
+    writable: true,
+    configurable: true
+  });
+
+  return mockRequest;
 }
 
-// Helper function to create a complete mock invocation context
+// Mock InvocationContext utility
 export function createTestInvocationContext(): jest.Mocked<InvocationContext> {
   return {
     log: jest.fn(),
@@ -170,42 +177,77 @@ export function createTestInvocationContext(): jest.Mocked<InvocationContext> {
   } as unknown as jest.Mocked<InvocationContext>;
 }
 
-// Common mock responses for different scenarios
+// Helper to create mock request with specific params
+export function createMockRequestWithParams(params: Record<string, any>): HttpRequest {
+  return createTestHttpRequest({ params });
+}
+
+// Helper to create mock request with JSON body
+export function createMockRequestWithJson(jsonData: any): HttpRequest {
+  const request = createTestHttpRequest();
+  (request.json as jest.MockedFunction<any>).mockResolvedValue(jsonData);
+  return request;
+}
+
+// Helper functions to create expected response formats that match responseBuilder
+export function createExpectedSuccessResponse<T>(
+  data: T,
+  path: string = '/api/test',
+  method: string = 'GET'
+): ApiResponse<T> {
+  return {
+    success: true,
+    data,
+    error: undefined,
+    timestamp: expect.any(String),
+    path,
+    method
+  };
+}
+
+export function createExpectedErrorResponse(
+  code: string,
+  message: string,
+  path: string = '/api/test',
+  method: string = 'GET',
+  details?: string,
+  validationErrors?: any[]
+): ApiResponse<undefined> {
+  return {
+    success: false,
+    data: undefined,
+    error: {
+      code,
+      message,
+      details,
+      validationErrors
+    },
+    timestamp: expect.any(String),
+    path,
+    method
+  };
+}
+
+// Common HTTP responses for testing (updated to match actual responseBuilder format)
 export const mockHttpResponses = {
-  success: (data: any) => ({
+  success: <T>(data: T, path: string = '/api/test', method: string = 'GET') => ({
     status: 200,
-    jsonBody: { success: true, data, timestamp: new Date().toISOString() }
+    jsonBody: createExpectedSuccessResponse(data, path, method)
   }),
-  
-  created: (data: any) => ({
+  created: <T>(data: T, path: string = '/api/test', method: string = 'POST') => ({
     status: 201,
-    jsonBody: { success: true, data, timestamp: new Date().toISOString() }
+    jsonBody: createExpectedSuccessResponse(data, path, method)
   }),
-  
-  badRequest: (message: string) => ({
+  badRequest: (message: string, path: string = '/api/test', method: string = 'POST', validationErrors?: any[]) => ({
     status: 400,
-    jsonBody: { 
-      success: false, 
-      error: { message, code: 'VALIDATION_ERROR' },
-      timestamp: new Date().toISOString()
-    }
+    jsonBody: createExpectedErrorResponse('VALIDATION_ERROR', message, path, method, undefined, validationErrors)
   }),
-  
-  notFound: (message: string) => ({
+  notFound: (message: string, path: string = '/api/test', method: string = 'GET') => ({
     status: 404,
-    jsonBody: { 
-      success: false, 
-      error: { message, code: 'NOT_FOUND' },
-      timestamp: new Date().toISOString()
-    }
+    jsonBody: createExpectedErrorResponse('NOT_FOUND', message, path, method)
   }),
-  
-  internalServerError: (message: string) => ({
+  internalServerError: (message: string, path: string = '/api/test', method: string = 'GET', details?: string) => ({
     status: 500,
-    jsonBody: { 
-      success: false, 
-      error: { message, code: 'INTERNAL_ERROR' },
-      timestamp: new Date().toISOString()
-    }
+    jsonBody: createExpectedErrorResponse('INTERNAL_ERROR', message, path, method, details)
   })
 };
