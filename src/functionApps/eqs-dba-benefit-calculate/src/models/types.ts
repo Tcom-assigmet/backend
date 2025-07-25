@@ -119,11 +119,6 @@ export interface FinalResultResponse {
     subProcessData: SubProcessData;
 }
 
-<<<<<<< HEAD
-=======
-// New type definitions for better type safety
-
->>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
 // Camunda API client types
 export interface CamundaClient {
     header(name: string, value: string): CamundaClient;
@@ -134,10 +129,7 @@ export interface CamundaClient {
 }
 
 export interface CamundaResponse {
-<<<<<<< HEAD
     statusCode: number;
-=======
->>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
     body: string | CamundaResponseBody;
     status: number;
 }
@@ -219,12 +211,6 @@ export interface ProcessStepData {
     [key: string]: LogValue;
 }
 
-<<<<<<< HEAD
-=======
-// Constructor type for decorators
-export type Constructor<T = {}> = new (...args: unknown[]) => T;
-
->>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
 // Function types for method decoration
 export type AsyncMethod = (...args: unknown[]) => Promise<unknown>;
 export type SyncMethod = (...args: unknown[]) => unknown;
@@ -238,7 +224,6 @@ export interface ErrorWithMessage {
     [key: string]: unknown;
 }
 
-<<<<<<< HEAD
 
 
 // API client factory function type
@@ -265,20 +250,3 @@ export interface ValidationError {
   message: string;
   code: string;
 }
-=======
-// Response data types for helpers
-export type ResponseData = 
-    | string 
-    | number 
-    | boolean 
-    | null 
-    | ResponseData[] 
-    | { [key: string]: ResponseData }
-    | FinalResultResponse
-    | ProcessResponse
-    | RequiredField[]
-    | { taskId: string; requiredFields: RequiredField[] };
-
-// API client factory function type
-export type ApiClientFactory = (baseUrl: string) => CamundaClient;
->>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c

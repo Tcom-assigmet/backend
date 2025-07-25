@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { HttpRequest, HttpResponseInit } from "@azure/functions";
 import {  FinalResultResponse, ProcessResponse, RequiredField , ApiResponse, ApiError, ValidationError } from "../models/types";
 
@@ -8,10 +7,6 @@ interface ErrorResponseBody {
 }
 
 // Generic type for success response data
-=======
-import { HttpResponseInit } from "@azure/functions";
-import { ResponseData } from '../models/types';
->>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
 
 
 export const createErrorResponse = (status: number, message: string): HttpResponseInit => ({
@@ -19,7 +14,6 @@ export const createErrorResponse = (status: number, message: string): HttpRespon
     jsonBody: { error: message } as ErrorResponseBody
 });
 
-<<<<<<< HEAD
 export const createSuccessResponse = (data: FinalResultResponse): HttpResponseInit => ({
     status: 200,
     jsonBody: data
@@ -31,9 +25,6 @@ export const createSuccessResponseStartCal = (data:ProcessResponse ): HttpRespon
 });
 
 export const createSuccessResponseTaskDetails = (data:{ taskId: string; requiredFields: RequiredField[] }): HttpResponseInit => ({
-=======
-export const createSuccessResponse = (data: ResponseData): HttpResponseInit => ({
->>>>>>> d4338e72701a55628774c3db4b3a7ad29be0d04c
     status: 200,
     jsonBody: data
 });
